@@ -1,0 +1,100 @@
+{
+  "categories": [
+    {
+      "id": "acne",
+      "title": "Acne",
+      "products": [],
+      "image": [
+        {
+          "url": "/assets/images/categories/acne.png",
+          "alt": "Acne"
+        }
+      ],
+      "description": "Effective solutions for acne-prone skin"
+    },
+    {
+      "id": "wrinkles",
+      "title": "Wrinkles",
+      "products": [],
+      "image": [
+        {
+          "url": "/assets/images/categories/wrinkles.png",
+          "alt": "Wrinkles"
+        }
+      ],
+      "description": "Anti-aging products to reduce wrinkles"
+    },
+    {
+      "id": "hairfall",
+      "title": "Hairfall",
+      "products": [],
+      "image": [
+        {
+          "url": "/assets/images/categories/hairfall.png",
+          "alt": "Hairfall"
+        }
+      ],
+      "description": "Hair care products to prevent hairfall"
+    },
+    {
+      "id": "dandruff",
+      "title": "Dandruff",
+      "products": [],
+      "image": [
+        {
+          "url": "/assets/images/categories/dandruff.png",
+          "alt": "Dandruff"
+        }
+      ],
+      "description": "Dandruff control and scalp care"
+    },
+    {
+      "id": "oily-scalp",
+      "title": "Oily Scalp",
+      "products": [],
+      "image": [
+        {
+          "url": "/assets/images/categories/oily-scalp.png",
+          "alt": "Oily Scalp"
+        }
+      ],
+      "description": "Products for oily scalp management"
+    },
+    {
+      "id": "stretch-marks",
+      "title": "Stretch Marks",
+      "products": [],
+      "image": [
+        {
+          "url": "/assets/images/categories/stretch-marks.png",
+          "alt": "Stretch Marks"
+        }
+      ],
+      "description": "Care for reducing stretch marks"
+    },
+    {
+      "id": "dryness",
+      "title": "Dryness",
+      "products": [],
+      "image": [
+        {
+          "url": "/assets/images/categories/dryness.png",
+          "alt": "Dryness"
+        }
+      ],
+      "description": "Hydrating solutions for dry skin"
+    },
+    {
+      "id": "pigmentation",
+      "title": "Pigmentation",
+      "products": [],
+      "image": [
+        {
+          "url": "/assets/images/categories/pigmentation.png",
+          "alt": "Pigmentation"
+        }
+      ],
+      "description": "Brightening and anti-pigmentation care"
+    }
+  ]
+}

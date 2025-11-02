@@ -1,0 +1,139 @@
+[
+  {
+    "activeOrders": [
+      {
+        "orderId": "#34567890",
+        "totalPaid": "₹2,254",
+        "status": "In Transit",
+        "estimatedDelivery": "Oct 26th, 12:45 PM",
+        "items": [
+          {
+            "name": "Beauty of Joseon Glow Serum",
+            "price": "₹1,082",
+            "image": "/assets/images/homeBanner2.png"
+          },
+          {
+            "name": "Beauty of Joseon Revive Serum",
+            "price": "₹1,172",
+            "image": "/assets/images/homeBanner2.png"
+          },
+          {
+            "name": "Beauty of Joseon Revive Serum",
+            "price": "₹1,172",
+            "image": "/assets/images/homeBanner2.png"
+          },
+          {
+            "name": "Beauty of Joseon Revive Serum",
+            "price": "₹1,172",
+            "image": "/assets/images/homeBanner2.png"
+          }
+        ],
+
+        "orderStatus": "SHIPPED"
+      },
+      {
+        "orderId": "#67890123",
+        "totalPaid": "₹2,254",
+        "status": "Shipped",
+        "estimatedDelivery": "Oct 28th, 12:45 PM",
+        "items": [
+          {
+            "name": "Beauty of Joseon Sun Stick",
+            "price": "₹1,082",
+            "image": "/assets/images/homeBanner2.png"
+          },
+          {
+            "name": "Beauty of Joseon Calming Serum",
+            "price": "₹1,172",
+            "image": "/assets/images/homeBanner2.png"
+          }
+        ],
+        "orderStatus": "PLACED"
+      }
+    ],
+    "pastOrders": [
+      {
+        "orderId": "#34567890",
+        "totalPaid": "₹2,254",
+        "status": "Delivered",
+        "deliveredOn": "Oct 20th, 12:45 PM",
+        "items": [
+          {
+            "name": "Beauty of Joseon Glow Serum",
+            "price": "₹1,082",
+            "image": "https://example.com/image1.jpg"
+          },
+          {
+            "name": "Beauty of Joseon Revive Serum",
+            "price": "₹1,172",
+            "image": "https://example.com/image2.jpg"
+          }
+        ],
+        "actions": ["Reorder", "View Details"]
+      },
+      {
+        "orderId": "#45678901",
+        "totalPaid": "₹2,254",
+        "status": "Cancelled",
+        "cancelledOn": "Oct 20th, 12:45 PM",
+        "items": [
+          {
+            "name": "Beauty of Joseon Glow Serum",
+            "price": "₹1,082",
+            "image": "https://example.com/image1.jpg"
+          },
+          {
+            "name": "Beauty of Joseon Revive Serum",
+            "price": "₹1,172",
+            "image": "https://example.com/image2.jpg"
+          }
+        ],
+        "actions": ["View Details"]
+      }
+    ],
+    "returns": [
+      {
+        "orderId": "#34567890",
+        "totalPaid": "₹2,254",
+        "status": "Refund Successful",
+        "refundProcessedOn": "Oct 22nd, 12:45 PM",
+        "refundAmount": "₹2,254",
+        "refundTo": "UPI ID ending in ***1234",
+        "items": [
+          {
+            "name": "Beauty of Joseon Glow Serum",
+            "price": "₹1,082",
+            "image": "https://example.com/image1.jpg"
+          },
+          {
+            "name": "Beauty of Joseon Revive Serum",
+            "price": "₹1,172",
+            "image": "https://example.com/image2.jpg"
+          }
+        ],
+        "actions": ["View Details"]
+      },
+      {
+        "orderId": "#45678901",
+        "totalPaid": "₹2,254",
+        "status": "Refund Successful",
+        "refundProcessedOn": "Oct 23rd, 12:45 PM",
+        "refundAmount": "₹2,254",
+        "refundTo": "UPI ID ending in ***5678",
+        "items": [
+          {
+            "name": "Beauty of Joseon Sun Stick",
+            "price": "₹1,082",
+            "image": "https://example.com/image3.jpg"
+          },
+          {
+            "name": "Beauty of Joseon Calming Serum",
+            "price": "₹1,172",
+            "image": "https://example.com/image4.jpg"
+          }
+        ],
+        "actions": ["View Details"]
+      }
+    ]
+  }
+]

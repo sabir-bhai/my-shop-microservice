@@ -1,0 +1,244 @@
+{
+  "steps": [
+    {
+      "id": "about",
+      "title": "About",
+      "questions": [
+        {
+          "id": 1,
+          "title": "What is your age?",
+          "multiple": false,
+          "extraInfo": "",
+          "options": [
+            { "id": 101, "value": "16-25" },
+            { "id": 102, "value": "25-30" },
+            { "id": 103, "value": "35-50" },
+            { "id": 104, "value": "Above 50" }
+          ]
+        },
+        {
+          "id": 2,
+          "title": "What is your gender?",
+          "multiple": false,
+          "extraInfo": "",
+          "options": [
+            { "id": 105, "value": "Male" },
+            { "id": 106, "value": "Female" },
+            { "id": 107, "value": "Other/ Not specified" }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "skin",
+      "title": "Skin",
+      "questions": [
+        {
+          "id": 3,
+          "title": "What is your skin type?",
+          "multiple": false,
+          "extraInfo": "IDENTIFY SKIN TYPES",
+          "options": [
+            { "id": 108, "value": "Normal" },
+            { "id": 109, "value": "Oily Skin" },
+            { "id": 110, "value": "Dry Skin" },
+            { "id": 111, "value": "Combination" },
+            { "id": 112, "value": "Sensitive" }
+          ]
+        },
+        {
+          "id": 4,
+          "title": "What skin concerns do you want to address?",
+          "multiple": true,
+          "extraInfo": "Select all that apply to get best recommendations",
+          "options": [
+            { "id": 113, "value": "Acne" },
+            { "id": 114, "value": "Advanced aging" },
+            { "id": 115, "value": "Wrinkles" },
+            { "id": 116, "value": "Pigmentation" },
+            { "id": 117, "value": "Un-even skin tone" }
+          ]
+        },
+        {
+          "id": 5,
+          "title": "How often do you treat your skin?",
+          "multiple": false,
+          "extraInfo": "",
+          "options": [
+            { "id": 118, "value": "Daily" },
+            { "id": 119, "value": "Weekly" },
+            { "id": 120, "value": "Monthly" },
+            { "id": 121, "value": "Rarely" }
+          ]
+        },
+        {
+          "id": 6,
+          "title": "What type of skincare routine do you follow in a day?",
+          "multiple": false,
+          "extraInfo": "",
+          "options": [
+            { "id": 122, "value": "Day Routine" },
+            { "id": 123, "value": "Night Routine" },
+            { "id": 124, "value": "Morning & Night Routine" },
+            { "id": 125, "value": "I don't use Skincare Daily" }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "hair",
+      "title": "Hair",
+      "questions": [
+        {
+          "id": 7,
+          "title": "What is your hair texture?",
+          "multiple": true,
+          "extraInfo": "",
+          "options": [
+            { "id": 126, "value": "Straight" },
+            { "id": 127, "value": "Wavy" },
+            { "id": 128, "value": "Curly" },
+            { "id": 129, "value": "Oily" }
+          ]
+        },
+        {
+          "id": 8,
+          "title": "What are your hair concerns?",
+          "multiple": true,
+          "extraInfo": "Select all that apply to get best recommendations",
+          "options": [
+            { "id": 130, "value": "Damaged hair" },
+            { "id": 131, "value": "Dandruff" },
+            { "id": 132, "value": "Volume" },
+            { "id": 133, "value": "Hair fall" }
+          ]
+        },
+        {
+          "id": 9,
+          "title": "How often do you wash your hair?",
+          "multiple": false,
+          "extraInfo": "",
+          "options": [
+            { "id": 134, "value": "Daily" },
+            { "id": 135, "value": "Once every two days" },
+            { "id": 136, "value": "3 times a week" },
+            { "id": 137, "value": "Weekly" },
+            { "id": 138, "value": "Monthly" }
+          ]
+        },
+        {
+          "id": 10,
+          "title": "What hair styling products do you use?",
+          "multiple": true,
+          "extraInfo": "Select all that apply to get best recommendations",
+          "options": [
+            { "id": 139, "value": "Pomade" },
+            { "id": 140, "value": "Clay" },
+            { "id": 141, "value": "Texture powder" },
+            { "id": 142, "value": "Nothing" },
+            { "id": 143, "value": "Sea salt spray" }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "lifestyle",
+      "title": "Lifestyle",
+      "questions": [
+        {
+          "id": 11,
+          "title": "Which type of place do you live in?",
+          "multiple": false,
+          "extraInfo": "",
+          "options": [
+            { "id": 144, "value": "Hot" },
+            { "id": 145, "value": "Cold" },
+            { "id": 146, "value": "Pollution" },
+            { "id": 147, "value": "Humid" }
+          ]
+        },
+        {
+          "id": 12,
+          "title": "What is your typical work environment?",
+          "multiple": false,
+          "extraInfo": "",
+          "options": [
+            { "id": 148, "value": "Outdoors" },
+            { "id": 149, "value": "Standing indoors" },
+            { "id": 150, "value": "Sitting indoors" },
+            { "id": 151, "value": "Physical work" }
+          ]
+        },
+        {
+          "id": 13,
+          "title": "What is your screen time?",
+          "multiple": false,
+          "extraInfo": "",
+          "options": [
+            { "id": 152, "value": "0-2" },
+            { "id": 153, "value": "2-5" },
+            { "id": 154, "value": "5-8" },
+            { "id": 155, "value": "More than 8" }
+          ]
+        },
+        {
+          "id": 14,
+          "title": "How often do you drink coffee?",
+          "multiple": false,
+          "extraInfo": "",
+          "options": [
+            { "id": 156, "value": "Daily" },
+            { "id": 157, "value": "Twice daily" },
+            { "id": 158, "value": "Rarely" },
+            { "id": 159, "value": "Never" }
+          ]
+        },
+        {
+          "id": 15,
+          "title": "What is your most consumed drink?",
+          "multiple": false,
+          "extraInfo": "",
+          "options": [
+            { "id": 160, "value": "Beer" },
+            { "id": 161, "value": "Spirits" },
+            { "id": 162, "value": "Fruit Juices" },
+            { "id": 163, "value": "Aerated drinks" }
+          ]
+        },
+        {
+          "id": 16,
+          "title": "What is your smoking frequency?",
+          "multiple": false,
+          "extraInfo": "",
+          "options": [
+            { "id": 164, "value": "Never" },
+            { "id": 165, "value": "Daily" },
+            { "id": 166, "value": "Multiple times a day" }
+          ]
+        },
+        {
+          "id": 17,
+          "title": "How many hours do you sleep in a day?",
+          "multiple": false,
+          "extraInfo": "",
+          "options": [
+            { "id": 167, "value": "less than 5" },
+            { "id": 168, "value": "5-8" },
+            { "id": 169, "value": "More than 8" }
+          ]
+        },
+        {
+          "id": 18,
+          "title": "How often do you eat fast food outside?",
+          "multiple": false,
+          "extraInfo": "",
+          "options": [
+            { "id": 170, "value": "Daily" },
+            { "id": 171, "value": "Occasionally" },
+            { "id": 162, "value": "Never" }
+          ]
+        }
+      ]
+    }
+  ]
+}

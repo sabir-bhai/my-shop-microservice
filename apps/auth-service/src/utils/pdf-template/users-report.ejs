@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        margin: 20px;
+      }
+      h1 {
+        text-align: center;
+      }
+      table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 20px;
+      }
+      th,
+      td {
+        border: 1px solid #ccc;
+        padding: 8px;
+        font-size: 12px;
+      }
+      th {
+        background: #f2f2f2;
+      }
+      tr:nth-child(even) {
+        background: #fafafa;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>Users Export Report</h1>
+    <p>Export Date: <%= exportDate %></p>
+    <p>Total Users: <%= users.length %></p>
+    <table>
+      <thead>
+        <tr>
+          <th>#</th>
+          <th>Name</th>
+          <th>Email</th>
+          <th>Status</th>
+          <th>Verified</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% users.forEach((user, index) => { %>
+        <tr>
+          <td><%= index + 1 %></td>
+          <td><%= user.name || "N/A" %></td>
+          <td><%= user.email %></td>
+          <td><%= user.status %></td>
+          <td><%= user.isVerified ? "Yes" : "No" %></td>
+        </tr>
+        <% }) %>
+      </tbody>
+    </table>
+  </body>
+</html>

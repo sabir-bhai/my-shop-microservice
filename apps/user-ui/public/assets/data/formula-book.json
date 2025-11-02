@@ -1,0 +1,29 @@
+{
+  "formula_book": [
+    {
+      "title": "Routine 101",
+      "description": "The ultimate skincare guide.",
+      "image": "/assets/images/trending-lakme.jpeg"
+    },
+    {
+      "title": "Ingredients Lab",
+      "description": "Know your ingredients.",
+      "image": "/assets/images/trending-kiko.jpeg"
+    },
+    {
+      "title": "Seasonal Skincare",
+      "description": "Seasonal picks.",
+      "image": "/assets/images/trending-lorel.jpeg"
+    },
+    {
+      "title": "Geo Skincare",
+      "description": "Skincare by location.",
+      "image": "/assets/images/trending-hudabeauty.jpeg"
+    },
+    {
+      "title": " Formula Digest ",
+      "description": "Your hub for beauty insights.",
+      "image": "/assets/images/formulabook-digest.png"
+    }
+  ]
+}

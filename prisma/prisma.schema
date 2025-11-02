@@ -1,0 +1,279 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mongodb"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id          String   @id @default(auto()) @map("_id") @db.ObjectId
+  name        String
+  email       String   @unique
+  phone             String?    // optional phone number
+  avatar            String? 
+  role            String          @default("user")  // or enum if you want (admin, user, etc.)
+  status          String          @default("active") // e.g., active / banned / deleted
+  lastLogin       DateTime?
+  password    String
+  isVerified  Boolean  @default(false)
+  createdAt   DateTime @default(now())
+  updatedAt DateTime? @default(now())
+  reviews     Review[]
+  cartItems      CartItem[]
+  orders       Order[]
+  messagesSent      Message[] @relation("UserSentMessages")
+  messagesReceived  Message[] @relation("UserReceivedMessages")
+  notifications Notification[]
+  deviceTokens  DeviceToken[]
+  addresses   Address[]
+}
+
+
+model Admin {
+  id          String   @id @default(auto()) @map("_id") @db.ObjectId
+  name        String
+  email       String   @unique
+  password    String
+  permissions String[] @default([])
+  createdAt   DateTime @default(now())
+
+  messagesSent      Message[] @relation("AdminSentMessages")
+  messagesReceived  Message[] @relation("AdminReceivedMessages")
+
+
+}
+
+
+model Message {
+  id          String    @id @default(auto()) @map("_id") @db.ObjectId
+  content     String
+  timestamp   DateTime  @default(now())
+  read        Boolean   @default(false)
+
+  // User sender
+  fromUserId  String?   @db.ObjectId
+  fromUser    User?     @relation("UserSentMessages", fields: [fromUserId], references: [id])
+
+  // Admin sender
+  fromAdminId String?   @db.ObjectId
+  fromAdmin   Admin?    @relation("AdminSentMessages", fields: [fromAdminId], references: [id])
+
+  // User recipient
+  toUserId    String?   @db.ObjectId
+  toUser      User?     @relation("UserReceivedMessages", fields: [toUserId], references: [id])
+
+  // Admin recipient
+  toAdminId   String?   @db.ObjectId
+  toAdmin     Admin?    @relation("AdminReceivedMessages", fields: [toAdminId], references: [id])
+}
+model Product {
+  id                String   @id @default(auto()) @map("_id") @db.ObjectId
+  title             String
+  slug              String?
+  description       String?
+  regularPrice      Float    @default(0.0)
+  salePrice         Float    @default(0.0)
+  warranty          String?
+  category          String
+  sku               String   @unique
+  stockQuantity     Int      @default(0)
+  discountCode      String?
+  tags              String[] @default([])
+  publicationStatus String   @default("Draft")
+  featuredProduct   Boolean  @default(false)
+  images            ProductImage[] @relation("ProductImages")
+  reviews           Review[]
+  cartItems         CartItem[]
+  // ADDED: orderItems relation
+  orderItems        OrderItem[]
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+}
+
+model ProductImage {
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  url       String
+  product   Product  @relation("ProductImages", fields: [productId], references: [id])
+  productId String   @db.ObjectId
+  createdAt DateTime @default(now())
+}
+
+model Review {
+  id                  String   @id @default(auto()) @map("_id") @db.ObjectId
+  rating              Int
+  title               String
+  comment             String
+  date                DateTime @default(now())
+  likes               Int      @default(0)
+  isVerifiedPurchase  Boolean  @default(false)
+  recommendsProduct   Boolean  @default(false)
+
+  // Relations
+  product   Product @relation(fields: [productId], references: [id])
+  productId String  @db.ObjectId
+
+  user   User @relation(fields: [userId], references: [id])
+  userId String @db.ObjectId
+
+  // Optional review images as separate model
+  images ReviewImage[] @relation("ReviewImages")
+}
+
+model ReviewImage {
+  id       String  @id @default(auto()) @map("_id") @db.ObjectId
+  url      String
+  review   Review  @relation("ReviewImages", fields: [reviewId], references: [id])
+  reviewId String  @db.ObjectId
+  createdAt DateTime @default(now())
+}
+
+
+
+
+
+
+
+
+model CartItem {
+  id         String   @id @default(auto()) @map("_id") @db.ObjectId
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId     String   @db.ObjectId
+  product    Product  @relation(fields: [productId], references: [id])
+  productId  String   @db.ObjectId
+
+  quantity   Int      @default(1)
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+  @@unique([userId, productId]) // Prevents duplicate items in cart
+}
+
+
+
+enum OrderStatus {
+  CREATED
+  ATTEMPTED
+  PAID
+  CAPTURED
+  FAILED
+}
+model Order {
+  id       String @id @default(auto()) @map("_id") @db.ObjectId  
+  userId   String @db.ObjectId
+  user     User   @relation(fields: [userId], references: [id])
+  
+  // ADDED: Address relation
+  addressId String  @db.ObjectId
+  address   Address @relation(fields: [addressId], references: [id])
+  amountPaise       Int
+  currency          String      @default("INR")
+  
+  // UPDATED: More detailed fields
+  subtotal   Float
+  shipping    Float   @default(0)
+  total       Float   // This should match amountPaise/100 for INR
+  itemsCount  Int     // Number of items
+  
+  status            OrderStatus @default(CREATED)
+  
+  // REMOVED: cartItems Json (replaced with OrderItem relation)
+  // ADDED: Order items relation
+  orderItems        OrderItem[]
+  
+  // ADDED: Order timeline relation
+  timeline          OrderTimeline[]
+  
+  // ADDED: Tracking information
+
+  
+  razorpayOrderId   String?
+  razorpayPaymentId  String?
+  signatureVerified Boolean     @default(false)
+  createdAt         DateTime    @default(now())
+  updatedAt         DateTime    @updatedAt
+}
+
+
+
+model Notification {
+  id          String   @id @default(auto()) @map("_id") @db.ObjectId
+  userId      String?  @db.ObjectId
+  user        User?    @relation(fields: [userId], references: [id])
+
+
+
+  type        NotificationType
+  title       String
+  message     String
+  data        Json?          // Can store extra info like orderId, offerId, etc.
+  isRead      Boolean  @default(false)
+  sentAt      DateTime @default(now())
+
+  // Push device token can be stored separately in another model
+}
+
+model DeviceToken {
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  userId    String?  @db.ObjectId
+  user      User?    @relation(fields: [userId], references: [id])
+  token     String   @unique // FCM device token
+  platform  String?  // "web", "android", "ios"
+  createdAt DateTime @default(now())
+}
+enum NotificationType {
+  ORDER_CREATED
+  PAYMENT_SUCCESS
+  ORDER_STATUS_CHANGED
+  SALES_OFFER
+  GENERAL
+}
+
+
+model Address {
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  pincode   String
+  city      String
+  state     String
+  address   String
+  locality  String
+  type      String      // Home, Office, Others
+  name      String
+  phone     String
+  userId    String   @db.ObjectId
+  user      User     @relation(fields: [userId], references: [id])
+  orders    Order[]
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  deletedAt DateTime?
+}
+
+
+// 3. ADD: OrderItem model (NEW)
+model OrderItem {
+  id        String  @id @default(auto()) @map("_id") @db.ObjectId
+  orderId   String  @db.ObjectId
+  order     Order   @relation(fields: [orderId], references: [id])
+  
+  name      String  // Product name at time of order
+  sku       String  // Product SKU at time of order
+  price     Float   // Price at time of order
+  quantity       Int     // Quantity ordered
+  
+  // Optional: Link to actual product (may be null if product deleted)
+  productId String @db.ObjectId
+  product   Product @relation(fields: [productId], references: [id])
+  
+  createdAt DateTime @default(now())
+}
+
+// 4. ADD: OrderTimeline model (NEW)
+model OrderTimeline {
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  orderId   String   @db.ObjectId
+  order     Order    @relation(fields: [orderId], references: [id])
+  status    String  
+  date      DateTime
+  completed Boolean  @default(false)
+  createdAt DateTime @default(now())
+}

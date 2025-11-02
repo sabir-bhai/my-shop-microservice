@@ -1,0 +1,115 @@
+{
+  "name": "Sulwhasoo Concentrated Ginseng Renewing Cream EX",
+  "sku": "sulwhasoo-concentrated-ginseng-renewing-cream-ex",
+  "price": 100,
+  "originalPrice": 100,
+  "stock": 100,
+  "size": [
+    {
+      "label": "100ml",
+      "price": 100
+    },
+    {
+      "label": "200ml",
+      "price": 200
+    },
+    {
+      "label": "300ml",
+      "price": 300
+    }
+  ],
+  "category": "Skin Care",
+  "subCategory": "Cleansing",
+  "tags": ["Ginseng", "Renewing", "Cream", "Ex"],
+  "brand": [
+    {
+      "name": "Sulwhasoo",
+      "id": "sulwhasoo"
+    }
+  ],
+  "description": "Sulwhasoo Concentrated Ginseng Renewing Cream EX is a luxurious cream that helps to rejuvenate and revitalize the skin. It contains concentrated ginseng root extract that penetrates deep into the skin to provide intense hydration and nourishment. The cream is designed to improve skin elasticity and reduce the signs of aging, leaving the skin feeling smooth, radiant, and youthful. It is suitable for all skin types and can be used daily to maintain a healthy and youthful complexion.",
+  "image": [
+    {
+      "url": "https://www.formula.meganto.yellowchalk.com/media/catalog/product/s/u/sulwhasoo_concentrated_ginseng_renewing_cream_ex_1.jpg",
+      "alt": "Sulwhasoo Concentrated Ginseng Renewing Cream EX"
+    },
+    {
+      "url": "https://www.formula.meganto.yellowchalk.com/media/catalog/product/s/u/sulwhasoo_concentrated_ginseng_renewing_cream_ex_2.jpg",
+      "alt": "Sulwhasoo Concentrated Ginseng Renewing Cream EX"
+    },
+    {
+      "url": "https://www.formula.meganto.yellowchalk.com/media/catalog/product/s/u/sulwhasoo_concentrated_ginseng_renewing_cream_ex_3.jpg",
+      "alt": "Sulwhasoo Concentrated Ginseng Renewing Cream EX"
+    }
+  ],
+  "ingredients": [
+    {
+      "key-ingredients": [
+        "Ginseng Root Extract",
+        "Water",
+        "Cyclopentasiloxane",
+        "Dimethicone",
+        "Sodium Chloride"
+      ],
+      "all-ingredients": [
+        "Ginseng Root Extract",
+        "Water",
+        "Cyclopentasiloxane",
+        "Dimethicone",
+        "Sodium Chloride"
+      ]
+    }
+  ],
+  "reviews": [
+    {
+      "rating": 5,
+      "review": "This cream is amazing! It has helped my skin feel so smooth and radiant."
+    },
+    {
+      "rating": 4,
+      "review": "I love the way this cream makes my skin feel. It's not too heavy and absorbs quickly."
+    },
+    {
+      "rating": 3,
+      "review": "This cream is good, but I prefer a thicker consistency."
+    }
+  ],
+  "relatedProducts": [
+    {
+      "name": "Sulwhasoo Concentrated Ginseng Renewing Cream EX",
+      "sku": "sulwhasoo-concentrated-ginseng-renewing-cream-ex"
+    },
+    {
+      "name": "Sulwhasoo Concentrated Ginseng Renewing Cream EX",
+      "sku": "sulwhasoo-concentrated-ginseng-renewing-cream-ex"
+    },
+    {
+      "name": "Sulwhasoo Concentrated Ginseng Renewing Cream EX",
+      "sku": "sulwhasoo-concentrated-ginseng-renewing-cream-ex"
+    }
+  ],
+  "isBestSeller": true,
+  "isNew": true,
+  "isSale": false,
+  "skinType": {
+    "dry": true,
+    "oily": false,
+    "sensitive": false,
+    "normal": false
+  },
+  "skinConcern": {
+    "acne": true,
+    "pigmentation": true,
+    "fineLines": true,
+    "wrinkles": true
+  },
+  "shipping": {
+    "weight": 100,
+    "width": 100,
+    "height": 100,
+    "length": 100
+  },
+  "directiontouse": [
+    "Apply a small amount to the face and neck in the morning and evening."
+  ]
+}

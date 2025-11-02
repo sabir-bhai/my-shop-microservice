@@ -1,0 +1,23 @@
+[
+  {
+    "id": 1,
+    "user": {
+      "name": "Rahul",
+      "profileImage": null,
+      "verifiedPurchase": true
+    },
+    "rating": 5,
+    "recommendation": true,
+    "title": "Good Product, works well",
+    "content": "I am diligent when it comes to using a refrigerated caffeine eye serum in the morning to help de-puff and revive my eyes.ˀˀ I had gone through two bottles of a different caffeine eye serum before splurging on this. This is formulated with slightly less caffeine but feels more elegant (less filmy) and absorbs better! My eyes have definitel lorem nt when it comes to using a refrigerated caffeine eye serum in the morning to help de-puff and revive my eyes.ˀˀ I had gone through two bottles of a different caffeine eye serum before splurging on this.",
+    "images": [
+      "/assets/images/comments/comments-image-1.png",
+      "/assets/images/comments/comments-image-2.png",
+      "/assets/images/comments/comments-image-3.png",
+      "/assets/images/comments/comments-image-4.png"
+    ],
+    "postedAt": "1 week ago",
+    "likes": 2,
+    "readMoreLink": "path/to/full-review"
+  }
+]

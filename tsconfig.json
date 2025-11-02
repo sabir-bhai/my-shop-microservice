@@ -1,0 +1,34 @@
+{
+  "extends": "./tsconfig.base.json",
+  "compileOnSave": false,
+  "files": [],
+  "references": [
+    {
+      "path": "./apps/auth-service-e2e"
+    },
+    {
+      "path": "./apps/auth-service"
+    },
+    {
+      "path": "./apps/api-gateway"
+    },
+    {
+      "path": "./apps/admin-ui"
+    },
+    {
+      "path": "./apps/product-service"
+    },
+    {
+      "path": "./apps/user-ui"
+    },
+    {
+      "path": "./apps/chatting-service"
+    },
+    {
+      "path": "./apps/add-to-cart-service"
+    },
+    {
+      "path": "./apps/order-service"
+    }
+  ]
+}

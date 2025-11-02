@@ -1,0 +1,82 @@
+{
+  "categories": [
+    {
+      "id": "1",
+      "title": "Toners",
+      "image": [
+        {
+          "id": "toner1",
+          "url": "/assets/images/toner.png",
+          "alt": "toner",
+          "mime_type": "image/png"
+        }
+      ],
+      "redirect_url": "/category/skin-care/toners"
+    },
+    {
+      "id": "2",
+      "title": "Moisturizers",
+      "image": [
+        {
+          "id": "moisturizer1",
+          "url": "/assets/images/moisturizer.png",
+          "alt": "moisturizer",
+          "mime_type": "image/png"
+        }
+      ],
+      "redirect_url": "/category/skin-care/moisturizers"
+    },
+    {
+      "id": "3",
+      "title": "Beard Oils",
+      "image": [
+        {
+          "id": "beard-oil1",
+          "url": "/assets/images/beard-oil.png",
+          "alt": "beard-oils",
+          "mime_type": "image/png"
+        }
+      ],
+      "redirect_url": "/category/hair-care/beard-oils"
+    },
+        {
+      "id": "4",
+      "title": "Toners",
+      "image": [
+        {
+          "id": "toner1",
+          "url": "/assets/images/toner.png",
+          "alt": "toner",
+          "mime_type": "image/png"
+        }
+      ],
+      "redirect_url": "/category/skin-care/toners"
+    },
+    {
+      "id": "5",
+      "title": "Moisturizers",
+      "image": [
+        {
+          "id": "moisturizer1",
+          "url": "/assets/images/moisturizer.png",
+          "alt": "moisturizer",
+          "mime_type": "image/png"
+        }
+      ],
+      "redirect_url": "/category/skin-care/moisturizers"
+    },
+    {
+      "id": "6",
+      "title": "Beard Oils",
+      "image": [
+        {
+          "id": "beard-oil1",
+          "url": "/assets/images/beard-oil.png",
+          "alt": "beard-oils",
+          "mime_type": "image/png"
+        }
+      ],
+      "redirect_url": "/category/hair-care/beard-oils"
+    }
+  ]
+}

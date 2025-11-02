@@ -1,0 +1,39 @@
+<svg width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+<g clip-path="url(#clip0_5939_253856)">
+<path d="M0.835938 16H31.1759" stroke="url(#paint0_linear_5939_253856)" stroke-width="2" stroke-linejoin="bevel"/>
+<path d="M16.0026 0.825488L0.828125 16L16.0026 31.1745L31.1771 16L16.0026 0.825488Z" stroke="url(#paint1_linear_5939_253856)" stroke-width="2" stroke-linejoin="bevel"/>
+<path d="M16.0056 31.1759L22.2456 16.0059L16.0056 0.835938L9.76562 16.0059L16.0056 31.1759Z" stroke="url(#paint2_linear_5939_253856)" stroke-width="2" stroke-linejoin="bevel"/>
+</g>
+<defs>
+<linearGradient id="paint0_linear_5939_253856" x1="-nan" y1="-nan" x2="-nan" y2="-nan" gradientUnits="userSpaceOnUse">
+<stop stop-color="#FF0017"/>
+<stop offset="0.11" stop-color="#EA051A"/>
+<stop offset="0.34" stop-color="#C31020"/>
+<stop offset="0.45" stop-color="#B51523"/>
+<stop offset="0.61" stop-color="#C31423"/>
+<stop offset="0.92" stop-color="#E81225"/>
+<stop offset="0.99" stop-color="#F31226"/>
+</linearGradient>
+<linearGradient id="paint1_linear_5939_253856" x1="0.121018" y1="0.118383" x2="31.881" y2="0.118383" gradientUnits="userSpaceOnUse">
+<stop stop-color="#FF0017"/>
+<stop offset="0.11" stop-color="#EA051A"/>
+<stop offset="0.34" stop-color="#C31020"/>
+<stop offset="0.45" stop-color="#B51523"/>
+<stop offset="0.61" stop-color="#C31423"/>
+<stop offset="0.92" stop-color="#E81225"/>
+<stop offset="0.99" stop-color="#F31226"/>
+</linearGradient>
+<linearGradient id="paint2_linear_5939_253856" x1="8.84562" y1="0.125938" x2="23.1656" y2="0.125938" gradientUnits="userSpaceOnUse">
+<stop stop-color="#FF0017"/>
+<stop offset="0.11" stop-color="#EA051A"/>
+<stop offset="0.34" stop-color="#C31020"/>
+<stop offset="0.45" stop-color="#B51523"/>
+<stop offset="0.61" stop-color="#C31423"/>
+<stop offset="0.92" stop-color="#E81225"/>
+<stop offset="0.99" stop-color="#F31226"/>
+</linearGradient>
+<clipPath id="clip0_5939_253856">
+<rect width="32" height="32" fill="white"/>
+</clipPath>
+</defs>
+</svg>

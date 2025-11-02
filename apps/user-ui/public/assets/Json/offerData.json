@@ -1,0 +1,42 @@
+[
+  {
+    "id": "1",
+    "images": [
+      {
+        "id": "1",
+        "url": "/assets/images/onSaleImage1.png",
+        "alt": "Flat 50% Off",
+        "mimeType": "image/png"
+      }
+    ],
+    "title": "Flat 50% Off",
+    "description": "on all skin products",
+    "discountPercentage": 50
+  },
+  {
+    "id": "2",
+    "images": [
+      {
+        "id": "2",
+        "url": "/assets/images/onSaleImage2.png",
+        "alt": "Get 50% Off",
+        "mimeType": "image/png"
+      }
+    ],
+    "title": "Get 50% Off",
+    "description": "on all facewash"
+  },
+  {
+    "id": "3",
+    "images": [
+      {
+        "id": "3",
+        "url": "/assets/images/onSaleImage3.png",
+        "alt": "Get 15% Off",
+        "mimeType": "image/png"
+      }
+    ],
+    "title": "Get 15% Off",
+    "description": "all facewash"
+  }
+]

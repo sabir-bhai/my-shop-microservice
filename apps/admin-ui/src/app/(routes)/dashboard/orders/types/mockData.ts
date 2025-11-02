@@ -1,0 +1,220 @@
+import { Order } from "./types";
+
+// export const mockOrders: Order[] = [
+//   {
+//     id: "ORD-2024-001",
+//     customer: {
+//       name: "John Smith",
+//       email: "john.smith@email.com",
+//       phone: "+1 (555) 123-4567",
+//     },
+//     status: "delivered",
+//     date: "Jan 15, 2024, 04:00 PM",
+//     total: 299.99,
+//     items: 2,
+//     address: {
+//       street: "123 Main St",
+//       city: "New York",
+//       state: "NY",
+//       zip: "10001",
+//       country: "USA",
+//     },
+//     orderItems: [
+//       {
+//         name: "Wireless Headphones Pro",
+//         sku: "WHP-001",
+//         price: 199.99,
+//         qty: 1,
+//       },
+//       { name: "Phone Case Premium", sku: "PC-001", price: 50.0, qty: 2 },
+//     ],
+//     subtotal: 299.99,
+//     shipping: 0,
+//     notes: "Customer requested expedited shipping",
+//     tracking: "TRK123456789",
+//     timeline: [
+//       {
+//         status: "Order Confirmed",
+//         date: "January 15, 2024 at 04:00 PM",
+//         completed: true,
+//       },
+//       {
+//         status: "Processing",
+//         date: "January 18, 2024 at 07:50 PM",
+//         completed: true,
+//       },
+//       {
+//         status: "Shipped",
+//         date: "January 18, 2024 at 07:50 PM",
+//         completed: true,
+//       },
+//       {
+//         status: "Delivered",
+//         date: "January 18, 2024 at 07:50 PM",
+//         completed: true,
+//       },
+//     ],
+//   },
+//   {
+//     id: "ORD-2024-002",
+//     customer: {
+//       name: "Sarah Johnson",
+//       email: "sarah.j@email.com",
+//       phone: "+1 (555) 987-6543",
+//     },
+//     status: "processing",
+//     date: "Jan 16, 2024, 02:45 PM",
+//     total: 149.99,
+//     items: 1,
+//     address: {
+//       street: "456 Oak Ave",
+//       city: "Los Angeles",
+//       state: "CA",
+//       zip: "90210",
+//       country: "USA",
+//     },
+//     orderItems: [
+//       { name: "Smart Watch Band", sku: "SWB-001", price: 149.99, qty: 1 },
+//     ],
+//     subtotal: 149.99,
+//     shipping: 0,
+//     notes: "Gift wrapping requested",
+//     timeline: [
+//       {
+//         status: "Order Confirmed",
+//         date: "January 16, 2024 at 02:45 PM",
+//         completed: true,
+//       },
+//       {
+//         status: "Processing",
+//         date: "January 17, 2024 at 10:30 AM",
+//         completed: true,
+//       },
+//       { status: "Shipped", date: "", completed: false },
+//       { status: "Delivered", date: "", completed: false },
+//     ],
+//   },
+//   {
+//     id: "ORD-2024-003",
+//     customer: {
+//       name: "Michael Brown",
+//       email: "mike.brown@email.com",
+//       phone: "+1 (555) 456-7890",
+//     },
+//     status: "shipped",
+//     date: "Jan 17, 2024, 08:15 PM",
+//     total: 89.99,
+//     items: 1,
+//     address: {
+//       street: "789 Pine St",
+//       city: "Chicago",
+//       state: "IL",
+//       zip: "60601",
+//       country: "USA",
+//     },
+//     orderItems: [
+//       { name: "Wireless Mouse", sku: "WM-001", price: 89.99, qty: 1 },
+//     ],
+//     subtotal: 89.99,
+//     shipping: 0,
+//     tracking: "TRK987654321",
+//     timeline: [
+//       {
+//         status: "Order Confirmed",
+//         date: "January 17, 2024 at 08:15 PM",
+//         completed: true,
+//       },
+//       {
+//         status: "Processing",
+//         date: "January 18, 2024 at 09:00 AM",
+//         completed: true,
+//       },
+//       {
+//         status: "Shipped",
+//         date: "January 19, 2024 at 02:30 PM",
+//         completed: true,
+//       },
+//       { status: "Delivered", date: "", completed: false },
+//     ],
+//   },
+//   {
+//     id: "ORD-2024-004",
+//     customer: {
+//       name: "Emily Davis",
+//       email: "emily.davis@email.com",
+//       phone: "+1 (555) 321-0987",
+//     },
+//     status: "pending",
+//     date: "Jan 18, 2024, 02:00 PM",
+//     total: 199.98,
+//     items: 3,
+//     address: {
+//       street: "321 Elm St",
+//       city: "Miami",
+//       state: "FL",
+//       zip: "33101",
+//       country: "USA",
+//     },
+//     orderItems: [
+//       { name: "USB-C Cable", sku: "UC-001", price: 29.99, qty: 2 },
+//       { name: "Power Bank", sku: "PB-001", price: 139.99, qty: 1 },
+//     ],
+//     subtotal: 199.97,
+//     shipping: 0,
+//     notes: "Please handle with care",
+//     timeline: [
+//       {
+//         status: "Order Confirmed",
+//         date: "January 18, 2024 at 02:00 PM",
+//         completed: true,
+//       },
+//       { status: "Processing", date: "", completed: false },
+//       { status: "Shipped", date: "", completed: false },
+//       { status: "Delivered", date: "", completed: false },
+//     ],
+//   },
+//   {
+//     id: "ORD-2024-005",
+//     customer: {
+//       name: "David Wilson",
+//       email: "david.w@email.com",
+//       phone: "+1 (555) 654-3210",
+//     },
+//     status: "cancelled",
+//     date: "Jan 14, 2024, 09:50 PM",
+//     total: 399.99,
+//     items: 3,
+//     address: {
+//       street: "654 Maple Dr",
+//       city: "Seattle",
+//       state: "WA",
+//       zip: "98101",
+//       country: "USA",
+//     },
+//     orderItems: [
+//       { name: "Gaming Keyboard", sku: "GK-001", price: 199.99, qty: 1 },
+//       { name: "Gaming Mouse Pad", sku: "GMP-001", price: 49.99, qty: 1 },
+//       { name: "Monitor Stand", sku: "MS-001", price: 149.99, qty: 1 },
+//     ],
+//     subtotal: 399.97,
+//     shipping: 0,
+//     notes: "Customer requested cancellation due to budget constraints",
+//     timeline: [
+//       {
+//         status: "Order Confirmed",
+//         date: "January 14, 2024 at 09:50 PM",
+//         completed: true,
+//       },
+//       {
+//         status: "Processing",
+//         date: "January 15, 2024 at 10:00 AM",
+//         completed: true,
+//       },
+//       {
+//         status: "Cancelled",
+//         date: "January 15, 2024 at 03:30 PM",
+//         completed: true,
+//       },
+//     ],
+//   },
+// ];

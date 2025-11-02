@@ -1,0 +1,92 @@
+[
+  {
+    "id": "ilem-japan",
+    "title": "Ilem Japan",
+    "logo": [
+      {
+        "id": "logo-1",
+        "url": "/assets/images/brandPageHero.png",
+        "alt": "Ilem Japan Logo",
+        "mimeType": "image/png"
+      }
+    ],
+    "image": {
+      "id": "img",
+      "url": "/assets/images/brandPageHero.png",
+      "alt": "banner image 1",
+      "mimeType": "image/png"
+    },
+    "description": "Our goal is to create wellness products that are good for you, inside and out. To fulfill this promise, each of our products must align with the following three pillars:",
+    "tags": ["Cruelty-free", "Vegan friendly", "Safe & healthy"],
+    "categories": [
+      {
+        "id": "1",
+        "name": "Skincare",
+        "products": [],
+        "image": [],
+        "subcategories": [],
+        "link": null
+      },
+      {
+        "id": "2",
+        "name": "Serums",
+        "products": [],
+        "image": [],
+        "subcategories": [],
+        "link": null
+      },
+      {
+        "id": "3",
+        "name": "Moisturizers",
+        "products": [],
+        "image": [],
+        "subcategories": [],
+        "link": null
+      },
+      {
+        "id": "4",
+        "name": "Cleansers",
+        "products": [],
+        "image": [],
+        "subcategories": [],
+        "link": null
+      }
+    ],
+    "relatedProducts": [
+      {
+        "id": "watermelon_glow_niacinamide",
+        "productName": "Beauty of Joseon Matte Sun Stick Mugwort + Camelia With SPF 50 PA++++",
+        "brand": "GLOW RECIPE",
+        "price": 3200,
+        "size": [
+          {
+            "label": "120 ML",
+            "price": 4150
+          },
+          {
+            "label": "250 ML",
+            "price": 5395
+          },
+          {
+            "label": "500 ML",
+            "price": 6225
+          }
+        ],
+        "category": "Bestseller",
+        "subCategory": "Serum",
+        "productImage": "/assets/images/ProductImageThree.png",
+        "hoverImage": "/assets/images/BestSellerDummyImageHover.png",
+        "stock": 10,
+        "isOutOfStock": false,
+        "sale": false,
+        "isWished": false,
+        "isBestSeller": true,
+        "isNew": false,
+        "originalPrice": 3200,
+        "discount": "",
+        "ingredients": [],
+        "ratings": null
+      }
+    ]
+  }
+]

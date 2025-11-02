@@ -1,0 +1,168 @@
+{
+  "categories": [
+    {
+      "id": "skin-care",
+      "title": "Skin Care",
+      "products": [
+        {
+          "id": "vinoperfect_brightening_moisturizer",
+          "category": "Bestseller",
+          "subCategory": "Moisturizer",
+          "sale": true,
+          "brand": "CAUDALIE",
+          "productName": "Vinoperfect Instant Brightening Moisturizer",
+          "size": [
+            {
+              "label": "120 ML",
+              "price": 4150
+            },
+            {
+              "label": "250 ML",
+              "price": 5395
+            },
+            {
+              "label": "500 ML",
+              "price": 6225
+            }
+          ],
+          "price": 4150,
+          "originalPrice": 4900,
+          "discount": "15% off",
+          "productImage": "/assets/images/ProductImageOne.png",
+          "hoverImage": "/assets/images/BestSellerDummyImageHover.png",
+          "stock": 10
+        }
+      ],
+      "image": [
+        {
+          "url": "/assets/images/categories/skin-care.png",
+          "alt": "Skin Care"
+        }
+      ],
+      "description": "Premium skin care products"
+    },
+    {
+      "id": "hair-care",
+      "title": "Hair Care",
+      "products": [
+        {
+          "id": "watermelon_glow_niacinamide",
+          "category": "Bestseller",
+          "subCategory": "Serum",
+          "sale": false,
+          "brand": "GLOW RECIPE",
+          "productName": "Beauty of Joseon Matte Sun Stick Mugwort + Camelia With SPF 50 PA++++",
+          "size": [
+            {
+              "label": "120 ML",
+              "price": 4150
+            },
+            {
+              "label": "250 ML",
+              "price": 5395
+            },
+            {
+              "label": "500 ML",
+              "price": 6225
+            }
+          ],
+          "price": 3200,
+          "originalPrice": 3200,
+          "discount": "",
+          "productImage": "/assets/images/ProductImageThree.png",
+          "hoverImage": "/assets/images/BestSellerDummyImageHover.png",
+          "stock": 10
+        }
+      ],
+      "image": [
+        {
+          "url": "/assets/images/categories/hair-care.png",
+          "alt": "Hair Care"
+        }
+      ],
+      "description": "Professional hair care products"
+    },
+    {
+      "id": "body-care",
+      "title": "Body Care",
+      "products": [
+        {
+          "id": "advanced_night_repair_serum",
+          "category": "Bestseller",
+          "subCategory": "Anti-Aging",
+          "sale": true,
+          "brand": "CAUDALIE",
+          "productName": "Vinoperfect Instant Brightening Moisturizer",
+          "size": [
+            {
+              "label": "120 ML",
+              "price": 4150
+            },
+            {
+              "label": "250 ML",
+              "price": 5395
+            },
+            {
+              "label": "500 ML",
+              "price": 6225
+            }
+          ],
+          "price": 6500,
+          "originalPrice": 7200,
+          "discount": "10% off",
+          "productImage": "/assets/images/ProductImageFour.png",
+          "hoverImage": "/assets/images/BestSellerDummyImageHover.png",
+          "stock": 10
+        }
+      ],
+      "image": [
+        {
+          "url": "/assets/images/categories/body-care.png",
+          "alt": "Body Care"
+        }
+      ],
+      "description": "Luxurious body care essentials"
+    },
+    {
+      "id": "korean-formula",
+      "title": "Korean Formula",
+      "products": [
+        {
+          "id": "tatcha_dewy_skin_cream",
+          "category": "Moisturizer",
+          "subCategory": "Bestseller",
+          "sale": false,
+          "brand": "Beauty of Joseon",
+          "productName": "Beauty of Joseon Matte Sun Stick Mugwort + Camelia With SPF 50 PA++++",
+          "size": [
+            {
+              "label": "120 ML",
+              "price": 4150
+            },
+            {
+              "label": "250 ML",
+              "price": 5395
+            },
+            {
+              "label": "500 ML",
+              "price": 6225
+            }
+          ],
+          "price": 5400,
+          "originalPrice": 5400,
+          "discount": "",
+          "productImage": "/assets/images/ProductImageSix.png",
+          "hoverImage": "/assets/images/BestSellerDummyImageHover.png",
+          "stock": 10
+        }
+      ],
+      "image": [
+        {
+          "url": "/assets/images/categories/korean-formula.png",
+          "alt": "Korean Formula"
+        }
+      ],
+      "description": "Authentic Korean beauty products"
+    }
+  ]
+}

@@ -1,0 +1,54 @@
+[
+  {
+    "id": "1",
+    "title": "The Brushstroke of Brilliance",
+    "subTitle": "Empowering Beauty for Every Woman",
+    "images": [
+      {
+        "id": "img1",
+        "url": "/assets/images/CoverflowCarouselImageOne.png",
+        "alt": "banner image 1",
+        "mimeType": "image/png"
+      }
+    ]
+  },
+  {
+    "id": "2",
+    "title": "The Brushstroke of Brilliance",
+    "subTitle": "Empowering Beauty for Every Woman",
+    "images": [
+      {
+        "id": "img2",
+        "url": "/assets/images/CoverflowCarouselImageTwo.png",
+        "alt": "banner image 2",
+        "mimeType": "image/png"
+      }
+    ]
+  },
+  {
+    "id": "3",
+    "title": "The Brushstroke of Brilliance",
+    "subTitle": "Empowering Beauty for Every Woman",
+    "images": [
+      {
+        "id": "img3",
+        "url": "/assets/images/CoverflowCarouselImageThree.png",
+        "alt": "banner image 3",
+        "mimeType": "image/png"
+      }
+    ]
+  },
+  {
+    "id": "3",
+    "title": "The Brushstroke of Brilliance",
+    "subTitle": "Empowering Beauty for Every Woman",
+    "images": [
+      {
+        "id": "img3",
+        "url": "/assets/images/CoverflowCarouselImageFour.png",
+        "alt": "banner image 3",
+        "mimeType": "image/png"
+      }
+    ]
+  }
+]
