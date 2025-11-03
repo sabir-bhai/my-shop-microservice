@@ -5,7 +5,10 @@ import Redis from "ioredis";
 
 export async function setupSocketIO(server: HTTPServer) {
   const io = new SocketIOServer(server, {
-    cors: { origin: "http://localhost:3000", credentials: true },
+    cors: {
+      origin: ["http://localhost:3000", "http://localhost:3001"],
+      credentials: true
+    },
   });
 
   // Try to setup Redis adapter, but don't fail if Redis is unavailable

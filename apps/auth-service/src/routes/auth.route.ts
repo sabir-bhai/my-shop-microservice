@@ -24,6 +24,7 @@ import {
   addAddress,
   getAddresses,
 } from "../controllers/auth.controller";
+import { exportUsersPDF } from "../controllers/pdf-export.controller";
 import isAuthenticated from "../../../../packages/middleware/isAuthenticated";
 import isAdminAuthenticated from "../../../../packages/middleware/isAdminAuthenticated";
 
@@ -64,7 +65,8 @@ router.put("/update-profile", isAuthenticated, updateUserProfile);
 router.post("/device-token", isAuthenticated, saveDeviceToken);
 router.post("/add-address", isAuthenticated, addAddress);
 router.get("/get-address", isAuthenticated, getAddresses);
-// router.get("/users-pdf", exportUsersPDF);
-// router.get("/users-csv", exportUsersCSV);
+
+// 📄 PDF Export (Admin only)
+router.get("/users-pdf", exportUsersPDF);
 
 export default router;

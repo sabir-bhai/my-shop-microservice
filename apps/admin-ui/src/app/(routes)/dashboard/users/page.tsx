@@ -4,6 +4,7 @@ import React, { useState } from "react";
 import SearchBar from "./components/SearchBar";
 import StatusFilter from "./components/StatusFilter";
 import UserTable from "./components/UserTable";
+import PdfPreviewModal from "./components/PdfPreviewModal";
 import { UserType } from "./data/mockUsers";
 import { Download, FileText } from "lucide-react";
 
@@ -15,6 +16,10 @@ const Page = () => {
   const [filter, setFilter] = useState("All");
   const [activeTab, setActiveTab] = useState<"all" | "deleted">("all");
   const [isDownloadingPdf, setIsDownloadingPdf] = useState(false);
+  const [isPdfModalOpen, setIsPdfModalOpen] = useState(false);
+  const [pdfUrl, setPdfUrl] = useState<string | null>(null);
+  const [pdfBlob, setPdfBlob] = useState<Blob | null>(null);
+  const [pdfFilename, setPdfFilename] = useState<string>("");
   const fetchUsers = async (): Promise<UserType[]> => {
     debugger;
     const res = await axios.get(
@@ -56,30 +61,68 @@ const Page = () => {
 
   // ---------- PDF (server) ----------
   const handleExportPdf = async () => {
+    debugger;
     try {
       setIsDownloadingPdf(true);
 
-      // Build query params if needed (status/page/limit). Example uses filter
-      const statusParam = filter.toLowerCase(); // adjust if you want activeTab or search
-      const resp = await axios.get(
-        `http://localhost:8080/api/users-pdf?status=${statusParam}`,
-        {
-          responseType: "blob",
-          // If your server requires auth cookies, include credentials:
-          // withCredentials: true,
-        }
-      );
+      // Build query params with current filter
+      const statusParam =
+        filter.toLowerCase() === "all" ? "" : filter.toLowerCase();
+      const url = statusParam
+        ? `http://localhost:8080/api/users-pdf?status=${statusParam}&limit=1000`
+        : `http://localhost:8080/api/users-pdf?limit=1000`;
 
-      // backend should set Content-Disposition header, but we fallback to a filename
-      const filename = `users-export-${
+      console.log("API url", url);
+      const resp = await axios.get(url, {
+        responseType: "blob",
+      });
+
+      // Extract filename from Content-Disposition header or use fallback
+      const contentDisposition = resp.headers["content-disposition"];
+      let filename = `users-export-${
         new Date().toISOString().split("T")[0]
       }.pdf`;
-      downloadBlob(resp.data, filename);
-    } catch (err) {
+
+      if (contentDisposition) {
+        const filenameMatch = contentDisposition.match(/filename="?(.+)"?/i);
+        if (filenameMatch) {
+          filename = filenameMatch[1];
+        }
+      }
+
+      // Create blob URL and open modal instead of direct download
+      const blobUrl = window.URL.createObjectURL(resp.data);
+      setPdfUrl(blobUrl);
+      setPdfBlob(resp.data);
+      setPdfFilename(filename);
+      setIsPdfModalOpen(true);
+    } catch (err: any) {
       console.error("PDF download error", err);
-      alert("Failed to download PDF");
+
+      // Show specific error message
+      const errorMsg =
+        err.response?.data?.message ||
+        "Failed to download PDF. Please try again.";
+      alert(errorMsg);
     } finally {
       setIsDownloadingPdf(false);
+    }
+  };
+
+  const handleClosePdfModal = () => {
+    setIsPdfModalOpen(false);
+    // Clean up blob URL
+    if (pdfUrl) {
+      window.URL.revokeObjectURL(pdfUrl);
+      setPdfUrl(null);
+    }
+    setPdfBlob(null);
+    setPdfFilename("");
+  };
+
+  const handleDownloadPdf = () => {
+    if (pdfBlob && pdfFilename) {
+      downloadBlob(pdfBlob, pdfFilename);
     }
   };
   return (
@@ -135,6 +178,14 @@ const Page = () => {
       <div className="flex-1">
         <UserTable users={filteredUsers} />
       </div>
+
+      {/* PDF Preview Modal */}
+      <PdfPreviewModal
+        isOpen={isPdfModalOpen}
+        onClose={handleClosePdfModal}
+        pdfUrl={pdfUrl}
+        onDownload={handleDownloadPdf}
+      />
     </div>
   );
 };

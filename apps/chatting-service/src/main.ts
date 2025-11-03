@@ -18,7 +18,8 @@ const httpServer = createServer(app);
 
 const io = new Server(httpServer, {
   cors: {
-    origin: "*", // allow all origins (customize this for production)
+    origin: ["http://localhost:3000", "http://localhost:3001"],
+    credentials: true,
     methods: ["GET", "POST"],
   },
 });

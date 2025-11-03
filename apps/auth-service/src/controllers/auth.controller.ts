@@ -1,5 +1,6 @@
 import { NextFunction, Request, Response } from "express";
 import { safeRedis } from "../../../../packages/libs/redis/safe-redis";
+import redis from "../../../../packages/libs/redis";
 import bcrypt from "bcryptjs";
 import { prisma } from "../../../../packages/libs/prisma";
 import { sendEmail } from "../utils/sendEmail/sendEmail";
@@ -285,6 +286,11 @@ export const loginUser = async (
       throw new AuthError("Invalid email or password.");
     }
 
+    // ✅ CHECK USER STATUS - Prevent inactive/banned users from logging in
+    if (user.status !== "active") {
+      throw new AuthError(`Your account is ${user.status}. Please contact support for assistance.`);
+    }
+
     // Generate tokens
     const accessToken = jwt.sign(
       { id: user.id, role: "user" },
@@ -418,6 +424,14 @@ export const refreshToken = async (
     const user = await prisma.user.findUnique({ where: { id: decoded.id } });
     if (!user) {
       return next(new AuthError("Forbidden! Account not found."));
+    }
+
+    // ✅ CHECK USER STATUS - Block inactive/banned users from refreshing tokens
+    if (user.status !== "active") {
+      // Clear cookies to force logout
+      res.clearCookie("access_token");
+      res.clearCookie("refresh_token");
+      return next(new AuthError(`Account is ${user.status}. Please contact support.`));
     }
 
     const newAccessToken = jwt.sign(
@@ -701,6 +715,23 @@ export const updateUserStatus = async (
       },
     });
 
+    // 🔴 INSTANT LOGOUT: If user is marked as inactive/banned/suspended, emit Socket.IO event
+    if (status !== "active") {
+      try {
+        await redis.publish(
+          "updates",
+          JSON.stringify({
+            event: "user:force-logout",
+            payload: { userId: id, status, reason: `Account ${status}` },
+          })
+        );
+        console.log(`📢 Published force-logout event for user: ${id}`);
+      } catch (redisErr) {
+        console.error("❌ Failed to publish force-logout event:", redisErr);
+        // Don't fail the request if Redis is down
+      }
+    }
+
     res.status(200).json({
       success: true,
       message: `User status updated to ${status} successfully`,
@@ -761,6 +792,21 @@ export const softDeleteUser = async (
         updatedAt: true,
       },
     });
+
+    // 🔴 INSTANT LOGOUT: Emit Socket.IO event for deleted user
+    try {
+      await redis.publish(
+        "updates",
+        JSON.stringify({
+          event: "user:force-logout",
+          payload: { userId: id, status: "deleted", reason: "Account deleted" },
+        })
+      );
+      console.log(`📢 Published force-logout event for deleted user: ${id}`);
+    } catch (redisErr) {
+      console.error("❌ Failed to publish force-logout event:", redisErr);
+      // Don't fail the request if Redis is down
+    }
 
     res.status(200).json({
       success: true,
@@ -1094,6 +1140,12 @@ export const googleCallback = async (
         },
       });
     } else {
+      // ✅ CHECK USER STATUS - Prevent inactive/banned users from logging in via Google
+      if (user.status !== "active") {
+        res.redirect(`${process.env.CLIENT_BASE_URL}/login?error=account_inactive&status=${user.status}`);
+        return;
+      }
+
       // Update lastLogin and avatar for existing users
       user = await prisma.user.update({
         where: { id: user.id },

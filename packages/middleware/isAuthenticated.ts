@@ -53,6 +53,15 @@ const isAuthenticated = async (
       return;
     }
 
+    // ✅ CHECK USER STATUS - Block inactive/banned users
+    if (account.status !== "active") {
+      res.status(403).json({
+        message: "Account is not active. Please contact support.",
+        status: account.status
+      });
+      return;
+    }
+
     // Attach user & role to request
     req.user = account;
     req.role = decoded.role;

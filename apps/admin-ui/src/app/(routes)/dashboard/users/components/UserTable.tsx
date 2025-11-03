@@ -14,7 +14,7 @@ interface Props {
 function UserTable({ users }: Props) {
   const [actionUserId, setActionUserId] = useState<string | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [modalAction, setModalAction] = useState<null | "delete" | "inactive">(
+  const [modalAction, setModalAction] = useState<null | "delete" | "inactive" | "active">(
     null
   );
   const queryClient = useQueryClient();
@@ -25,11 +25,11 @@ function UserTable({ users }: Props) {
     },
   });
 
-  // Mark inactive
-  const inactiveMutation = useMutation({
-    mutationFn: (id: string) =>
+  // Update user status (inactive or active)
+  const statusMutation = useMutation({
+    mutationFn: ({ id, status }: { id: string; status: string }) =>
       axios.patch(`http://localhost:8080/api/update-status/${id}`, {
-        status: "inactive",
+        status,
       }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["users"] });
@@ -46,8 +46,8 @@ function UserTable({ users }: Props) {
     setIsModalOpen(true);
   };
 
-  const handleInactive = (id: string) => {
-    setModalAction("inactive");
+  const handleStatusChange = (id: string, status: "inactive" | "active") => {
+    setModalAction(status);
     setActionUserId(id);
     setIsModalOpen(true);
   };
@@ -56,8 +56,8 @@ function UserTable({ users }: Props) {
     if (actionUserId && modalAction) {
       if (modalAction === "delete") {
         deleteMutation.mutate(actionUserId);
-      } else if (modalAction === "inactive") {
-        inactiveMutation.mutate(actionUserId);
+      } else if (modalAction === "inactive" || modalAction === "active") {
+        statusMutation.mutate({ id: actionUserId, status: modalAction });
       }
     }
     // Close modal and reset states
@@ -79,7 +79,9 @@ function UserTable({ users }: Props) {
         message={
           modalAction === "delete"
             ? "Are you sure you want to delete this user?"
-            : "Are you sure you want to mark user as Inactive?"
+            : modalAction === "inactive"
+            ? "Are you sure you want to mark user as Inactive?"
+            : "Are you sure you want to activate this user?"
         }
         onCancel={handleCancel}
         onConfirm={handleConfirm}
@@ -148,19 +150,28 @@ function UserTable({ users }: Props) {
 
                 {/* Dropdown Menu */}
                 {actionUserId === user.id && (
-                  <div className="absolute right-0 mt-2 bg-[#2f2f31] p-2 rounded-lg z-10">
+                  <div className="absolute right-0 mt-2 bg-[#2f2f31] p-2 rounded-lg z-10 min-w-[120px]">
                     <button
                       className="block w-full px-4 py-1 text-sm text-red-400 hover:bg-[#3a3a3d] rounded-md"
                       onClick={() => handleDelete(user.id)}
                     >
                       Delete
                     </button>
-                    <button
-                      className="block w-full px-4 py-1 text-sm text-yellow-400 hover:bg-[#3a3a3d] rounded-md"
-                      onClick={() => handleInactive(user.id)}
-                    >
-                      Inactive
-                    </button>
+                    {user.status === "active" ? (
+                      <button
+                        className="block w-full px-4 py-1 text-sm text-yellow-400 hover:bg-[#3a3a3d] rounded-md"
+                        onClick={() => handleStatusChange(user.id, "inactive")}
+                      >
+                        Inactive
+                      </button>
+                    ) : (
+                      <button
+                        className="block w-full px-4 py-1 text-sm text-green-400 hover:bg-[#3a3a3d] rounded-md"
+                        onClick={() => handleStatusChange(user.id, "active")}
+                      >
+                        Activate
+                      </button>
+                    )}
                   </div>
                 )}
               </td>

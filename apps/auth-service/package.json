@@ -69,5 +69,9 @@
         "command": "docker build -f apps/auth-service/Dockerfile . -t my-shop-backend-auth-service"
       }
     }
+  },
+  "dependencies": {
+    "@types/pdfkit": "^0.17.3",
+    "pdfkit": "^0.17.2"
   }
 }
