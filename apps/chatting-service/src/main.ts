@@ -25,12 +25,42 @@ const io = new Server(httpServer, {
 
 (async () => {
   try {
-    // Redis Pub/Sub setup
-    const pubClient = redis.duplicate();
-    const subClient = redis.duplicate();
+    // Redis Pub/Sub setup - with proper error handling
+    try {
+      const Redis = require("ioredis");
+      const redisUrl = process.env.REDIS_URL || "redis://127.0.0.1:6379";
 
-    // ✅ DO NOT CALL connect() unless you use lazyConnect: true in your Redis config
-    io.adapter(createAdapter(pubClient, subClient));
+      // Create separate clients with proper configuration for Socket.IO
+      const pubClient = new Redis(redisUrl, {
+        maxRetriesPerRequest: null,
+        enableOfflineQueue: true,
+        tls: redisUrl.startsWith("rediss://") ? {
+          rejectUnauthorized: true
+        } : undefined,
+        family: 0,
+      });
+
+      const subClient = pubClient.duplicate();
+
+      // Wait for both clients to be ready
+      await Promise.all([
+        new Promise((resolve, reject) => {
+          pubClient.once("ready", resolve);
+          pubClient.once("error", reject);
+          setTimeout(() => reject(new Error("Redis pubClient timeout")), 5000);
+        }),
+        new Promise((resolve, reject) => {
+          subClient.once("ready", resolve);
+          subClient.once("error", reject);
+          setTimeout(() => reject(new Error("Redis subClient timeout")), 5000);
+        }),
+      ]);
+
+      io.adapter(createAdapter(pubClient, subClient));
+      console.log("✓ Chatting service using Redis adapter");
+    } catch (redisErr) {
+      console.warn("⚠️ Redis unavailable - using in-memory adapter");
+    }
 
     io.on("connection", (socket) => {
       console.log(`✅ Socket connected: ${socket.id}`);
@@ -105,7 +135,7 @@ const io = new Server(httpServer, {
       console.log(`🚀 Chatting service running on http://localhost:${PORT}`);
     });
   } catch (error) {
-    console.error("❌ Redis connection error:", error);
+    console.error("❌ Server error:", error);
     process.exit(1);
   }
 })();

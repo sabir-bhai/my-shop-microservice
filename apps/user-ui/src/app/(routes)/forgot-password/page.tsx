@@ -2,10 +2,11 @@
 
 import React from "react";
 import { useForm, SubmitHandler } from "react-hook-form";
+import { useRouter } from "next/navigation";
 import Link from "next/link";
 
 import { useMutation } from "@tanstack/react-query";
-import { toast } from "sonner"; // or use any toast lib you use
+import { toast } from "sonner";
 import axios from "axios";
 
 interface ForgotPasswordFormInputs {
@@ -13,6 +14,7 @@ interface ForgotPasswordFormInputs {
 }
 
 const ForgotPassword = () => {
+  const router = useRouter();
   const {
     register,
     handleSubmit,
@@ -24,18 +26,20 @@ const ForgotPassword = () => {
   const forgotPasswordMutation = useMutation({
     mutationFn: async (data: ForgotPasswordFormInputs) => {
       const response = await axios.post(
-        "http://localhost:8080/api/forgot-password ",
+        "http://localhost:8080/api/forgot-password",
         data
       );
       return response.data;
     },
     onSuccess: (data) => {
-      toast.success(data?.message || "OTP sent successfully");
+      toast.success(data?.message || "Reset link sent successfully");
+      // No need to redirect - user will click the link in their email
     },
     onError: (error: any) => {
+      // Extract error message from nested structure: error.message or error.error.message
       const msg =
-        error?.response?.data?.message ||
         error?.response?.data?.error?.message ||
+        error?.response?.data?.message ||
         error?.message ||
         "Something went wrong";
 
@@ -52,7 +56,7 @@ const ForgotPassword = () => {
       <div className="bg-white border border-gray-200 rounded-lg shadow-md p-8 w-full max-w-md text-center">
         <h2 className="text-xl font-medium mb-4">Forgot Password</h2>
         <p className="text-sm text-gray-600 mb-6">
-          Enter your email below and we’ll send you an OTP to reset your
+          Enter your email below and we'll send you a link to reset your
           password.
         </p>
 
@@ -91,7 +95,7 @@ const ForgotPassword = () => {
                 : "bg-[#d6c5ca] text-white cursor-not-allowed"
             }`}
           >
-            {forgotPasswordMutation.isPending ? "Sending..." : "SEND OTP"}
+            {forgotPasswordMutation.isPending ? "Sending..." : "SEND RESET LINK"}
           </button>
         </form>
 

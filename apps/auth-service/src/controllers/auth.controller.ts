@@ -1,5 +1,5 @@
 import { NextFunction, Request, Response } from "express";
-import redis from "../../../../packages/libs/redis";
+import { safeRedis } from "../../../../packages/libs/redis/safe-redis";
 import bcrypt from "bcryptjs";
 import { prisma } from "../../../../packages/libs/prisma";
 import { sendEmail } from "../utils/sendEmail/sendEmail";
@@ -15,10 +15,6 @@ import { generateCodeVerifier, generateState } from "arctic";
 import { googleClient } from "../../../../packages/libs/gooole/Index";
 import fetch from "node-fetch";
 
-import ejs from "ejs";
-import puppeteer, { Browser } from "puppeteer";
-import path from "path";
-import fs from "fs";
 
 export const userRegistration = async (
   req: Request,
@@ -41,20 +37,50 @@ export const userRegistration = async (
     // Check if user already exists in DB
     const existingUser = await prisma.user.findUnique({ where: { email } });
     if (existingUser) {
-      throw new ConflictError("User already exists");
+      // If user signed up with Google but has no password, allow them to set one
+      if (existingUser.password === null) {
+        // User exists from Google OAuth, let them add password via OTP
+        // Continue with OTP flow to verify and add password
+      } else {
+        // User already has a password
+        throw new ConflictError("User already exists with email/password login");
+      }
     }
+
+    // Rate limiting: Track OTP requests (3 requests per 5 minutes)
+    const rateLimitKey = `ratelimit:signup:${email}`;
+
+    // Increment the counter (or set to 1 if doesn't exist)
+    const requestCount = await safeRedis.incr(rateLimitKey);
+    console.log(`[Rate Limit] ${email} - Request count: ${requestCount}`);
+
+    // Set expiry only on first request (when count becomes 1)
+    if (requestCount === 1) {
+      await safeRedis.expire(rateLimitKey, 300); // 5 minutes (300 seconds) expiry
+      console.log(`[Rate Limit] ${email} - Expiry set to 300 seconds`);
+    }
+
+    if (requestCount > 3) {
+      console.log(`[Rate Limit] ${email} - BLOCKED! Count: ${requestCount}`);
+      throw new ValidationError(
+        "Too many OTP requests. Please wait 5 minutes before trying again."
+      );
+    }
+
+    // Delete any existing pending OTP to allow fresh OTP
+    await safeRedis.del(`signup:${email}`);
 
     // Generate OTP
     const otp = Math.floor(100000 + Math.random() * 900000).toString();
     const otpHash = await bcrypt.hash(otp, 10);
     const passwordHash = await bcrypt.hash(password, 10);
 
-    // Save in Redis for 10 min
-    await redis.set(
+    // Save in Redis for 2 min 30 sec
+    await safeRedis.set(
       `signup:${email}`,
       JSON.stringify({ name, email, passwordHash, otpHash }),
       "EX",
-      600
+      150
     );
 
     await sendEmail(email, "Verify Your Email", "user-activation.mail.ejs", {
@@ -63,6 +89,77 @@ export const userRegistration = async (
     });
 
     return res.json({ message: "OTP sent to your email" });
+  } catch (err) {
+    return next(err);
+  }
+};
+
+// Resend OTP for registration
+export const resendOtp = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    const { email } = req.body;
+
+    if (!email) {
+      throw new ValidationError("Email is required");
+    }
+
+    // Check if user already exists in DB
+    const existingUser = await prisma.user.findUnique({ where: { email } });
+    if (existingUser) {
+      throw new ConflictError("User already exists and is verified");
+    }
+
+    // Check if there's pending registration data
+    const pendingData = await safeRedis.get(`signup:${email}`);
+    if (!pendingData) {
+      throw new ValidationError(
+        "No pending registration found. Please register first."
+      );
+    }
+
+    // Rate limiting: Track OTP requests (3 requests per 5 minutes)
+    const rateLimitKey = `ratelimit:resend:${email}`;
+
+    // Increment the counter (or set to 1 if doesn't exist)
+    const requestCount = await safeRedis.incr(rateLimitKey);
+
+    // Set expiry only on first request (when count becomes 1)
+    if (requestCount === 1) {
+      await safeRedis.expire(rateLimitKey, 300); // 5 minutes (300 seconds) expiry
+    }
+
+    if (requestCount > 3) {
+      throw new ValidationError(
+        "Too many OTP requests. Please wait 5 minutes before trying again."
+      );
+    }
+
+    // Get existing registration data
+    const userData = JSON.parse(pendingData);
+
+    // Generate new OTP
+    const otp = Math.floor(100000 + Math.random() * 900000).toString();
+    const otpHash = await bcrypt.hash(otp, 10);
+
+    // Update Redis with new OTP hash
+    await safeRedis.set(
+      `signup:${email}`,
+      JSON.stringify({ ...userData, otpHash }),
+      "EX",
+      150
+    );
+
+    // Send new OTP email
+    await sendEmail(email, "Verify Your Email", "user-activation.mail.ejs", {
+      name: userData.name,
+      otp,
+    });
+
+    return res.json({ message: "OTP resent successfully" });
   } catch (err) {
     return next(err);
   }
@@ -77,37 +174,79 @@ export const verifyOtp = async (
   try {
     const { email, otp } = req.body;
     if (!email || !otp) {
-      return res.status(400).json({ message: "Email and OTP are required" });
+      throw new ValidationError("Email and OTP are required");
     }
 
-    const data = await redis.get(`signup:${email}`);
+    const data = await safeRedis.get(`signup:${email}`);
     if (!data) {
-      return res
-        .status(400)
-        .json({ message: "OTP expired or registration not found" });
+      throw new ValidationError("OTP expired or registration not found");
     }
 
     const userData = JSON.parse(data);
     const isOtpValid = await bcrypt.compare(otp, userData.otpHash);
 
     if (!isOtpValid) {
-      return res.status(400).json({ message: "Invalid OTP" });
+      throw new ValidationError("Invalid OTP");
     }
 
-    // Save verified user in DB
-    await prisma.user.create({
-      data: {
-        name: userData.name,
-        email: userData.email,
-        password: userData.passwordHash,
-        isVerified: true,
-      },
-    });
+    // Check if user already exists (Google OAuth user)
+    const existingUser = await prisma.user.findUnique({ where: { email } });
+
+    let user;
+    if (existingUser) {
+      // Update existing Google user with password
+      user = await prisma.user.update({
+        where: { email },
+        data: {
+          password: userData.passwordHash,
+          authProvider: "email", // Now using email/password
+          isVerified: true,
+          lastLogin: new Date(),
+        },
+      });
+    } else {
+      // Create new user
+      user = await prisma.user.create({
+        data: {
+          name: userData.name,
+          email: userData.email,
+          password: userData.passwordHash,
+          authProvider: "email",
+          isVerified: true,
+          lastLogin: new Date(),
+        },
+      });
+    }
 
     // Remove from Redis
-    await redis.del(`signup:${email}`);
+    await safeRedis.del(`signup:${email}`);
 
-    return res.json({ message: "Email verified successfully" });
+    // Generate tokens
+    const accessToken = jwt.sign(
+      { id: user.id, role: "user" },
+      process.env.ACCESS_TOKEN_SECRET as string,
+      { expiresIn: "15m" }
+    );
+
+    const refreshToken = jwt.sign(
+      { id: user.id, role: "user" },
+      process.env.REFRESH_TOKEN_SECRET as string,
+      { expiresIn: "7d" }
+    );
+
+    // Set tokens in cookies
+    setCookie(res, "access_token", accessToken);
+    setCookie(res, "refresh_token", refreshToken);
+
+    return res.status(200).json({
+      message: "Email verified successfully",
+      user: {
+        id: user.id,
+        name: user.name,
+        email: user.email,
+        role: user.role,
+      },
+    });
   } catch (err) {
     console.error(err);
     return next(err);
@@ -134,7 +273,14 @@ export const loginUser = async (
       throw new AuthError("Invalid email or password.");
     }
 
-    const isMatch = await bcrypt.compare(password, user.password!);
+    // Check if user has a password (not a Google-only user)
+    if (!user.password) {
+      throw new AuthError(
+        "This account was created with Google. Please login with Google or set a password by registering with this email."
+      );
+    }
+
+    const isMatch = await bcrypt.compare(password, user.password);
     if (!isMatch) {
       throw new AuthError("Invalid email or password.");
     }
@@ -288,8 +434,8 @@ export const refreshToken = async (
   }
 };
 
-// 🔑 Request Forgot Password OTP
-// Step 1: Request OTP
+// 🔑 Request Forgot Password - Token-based
+// Step 1: Send reset link with JWT token
 export const verifyUserForgotPassword = async (
   req: Request,
   res: Response,
@@ -303,35 +449,99 @@ export const verifyUserForgotPassword = async (
     const user = await prisma.user.findUnique({ where: { email } });
     if (!user) throw new ValidationError("User not found!");
 
-    const otp = Math.floor(100000 + Math.random() * 900000).toString();
-    const otpHash = await bcrypt.hash(otp, 10);
+    // Rate limiting: Track reset requests (3 requests per 5 minutes)
+    const rateLimitKey = `ratelimit:forgot:${email}`;
 
-    await redis.set(`forgot:${email}`, JSON.stringify({ otpHash }), "EX", 600);
+    // Increment the counter (or set to 1 if doesn't exist)
+    const requestCount = await safeRedis.incr(rateLimitKey);
 
-    const resetLink = `http://localhost:3000/reset-password?email=${encodeURIComponent(
-      email
-    )}`;
+    // Set expiry only on first request (when count becomes 1)
+    if (requestCount === 1) {
+      await safeRedis.expire(rateLimitKey, 300); // 5 minutes (300 seconds) expiry
+    }
+
+    if (requestCount > 3) {
+      throw new ValidationError(
+        "Too many reset requests. Please wait 5 minutes before trying again."
+      );
+    }
+
+    // Generate JWT token for password reset (valid for 15 minutes)
+    const resetToken = jwt.sign(
+      { id: user.id, email: user.email, purpose: "password-reset" },
+      process.env.RESET_PASSWORD_SECRET as string,
+      { expiresIn: "15m" }
+    );
+
+    const resetLink = `http://localhost:3000/reset-password?token=${resetToken}`;
 
     await sendEmail(
       email,
       "Reset Your Password",
       "forgot-password-user.mail.ejs",
       {
-        otp,
-        resetLink, // ✅ Pass reset link to email template
+        resetLink,
         name: user?.name || "User",
       }
     );
 
     res.status(200).json({
-      message: "OTP and reset link sent to email. Please verify your account.",
+      message: "Password reset link sent to email. Please check your inbox.",
     });
   } catch (error) {
     next(error);
   }
 };
 
-// Step 2: Verify OTP and Reset Password
+// Step 2: Reset Password with Token
+export const resetPasswordWithToken = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    const { token, newPassword } = req.body;
+
+    if (!token || !newPassword) {
+      throw new ValidationError("Token and new password are required!");
+    }
+
+    if (newPassword.length < 8) {
+      throw new ValidationError("Password must be at least 8 characters long.");
+    }
+
+    // Verify the reset token
+    let decoded;
+    try {
+      decoded = jwt.verify(
+        token,
+        process.env.RESET_PASSWORD_SECRET as string
+      ) as { id: string; email: string; purpose: string };
+    } catch (err) {
+      throw new AuthError("Invalid or expired reset token");
+    }
+
+    // Verify the token purpose
+    if (decoded.purpose !== "password-reset") {
+      throw new AuthError("Invalid token purpose");
+    }
+
+    // Hash the new password
+    const passwordHash = await bcrypt.hash(newPassword, 10);
+
+    // Update user password
+    await prisma.user.update({
+      where: { id: decoded.id },
+      data: { password: passwordHash },
+    });
+
+    res.status(200).json({ message: "Password reset successful" });
+  } catch (error) {
+    next(error);
+  }
+};
+
+// Legacy OTP endpoint - keeping for backward compatibility (optional)
 export const verifyForgotPasswordOtp = async (
   req: Request,
   res: Response,
@@ -348,7 +558,7 @@ export const verifyForgotPasswordOtp = async (
       throw new ValidationError("Password must be at least 8 characters long.");
     }
 
-    const data = await redis.get(`forgot:${email}`);
+    const data = await safeRedis.get(`forgot:${email}`);
     if (!data) throw new ValidationError("OTP expired or invalid.");
 
     const { otpHash } = JSON.parse(data);
@@ -362,7 +572,7 @@ export const verifyForgotPasswordOtp = async (
       data: { password: passwordHash },
     });
 
-    await redis.del(`forgot:${email}`);
+    await safeRedis.del(`forgot:${email}`);
 
     res.status(200).json({ message: "Password reset successful" });
   } catch (error) {
@@ -870,29 +1080,27 @@ export const googleCallback = async (
     });
 
     if (!user) {
-      const randomPassword = await bcrypt.hash(
-        Math.random().toString(36) + Date.now().toString(),
-        10
-      );
-
+      // Create new user with Google OAuth (no password)
       user = await prisma.user.create({
         data: {
           name: profile.name ?? "Google User",
           email: profile.email,
-          password: randomPassword,
+          password: null, // No password for Google OAuth users
+          authProvider: "google",
           isVerified: true,
           avatar: profile.picture ?? null,
-          role: "user", // set default role for new Google users
+          role: "user",
           lastLogin: new Date(),
         },
       });
     } else {
-      // Update role and lastLogin for existing users
+      // Update lastLogin and avatar for existing users
       user = await prisma.user.update({
         where: { id: user.id },
         data: {
-          role: "user", // you can decide role logic here if needed
           lastLogin: new Date(),
+          // Update avatar if user doesn't have one
+          ...(profile.picture && !user.avatar && { avatar: profile.picture }),
         },
       });
     }
@@ -1001,204 +1209,3 @@ export const getAddresses = async (
     next(err);
   }
 };
-
-/**
- * Improved users PDF export with nicer layout:
- * - Title + generation metadata (uses IST)
- * - Table-like layout with column headers
- * - Alternating row backgrounds
- * - Wrapped cells, automatic page breaks
- * - Header & footer on every page (page numbers)
- */
-
-export const exportUsersPDF = async (
-  req: Request,
-  res: Response,
-  next: NextFunction
-) => {
-  let browser: Browser | null = null;
-
-  try {
-    console.log("Starting PDF export process...");
-
-    // 1. Fetch users
-    const users = await prisma.user.findMany({
-      select: {
-        id: true,
-        name: true,
-        email: true,
-        status: true,
-        createdAt: true,
-        lastLogin: true,
-        isVerified: true,
-      },
-      orderBy: { createdAt: "desc" },
-    });
-
-    console.log(`Found ${users.length} users for export`);
-
-    // 2. Template path validation
-    const templatePath = path.resolve(
-      process.cwd(),
-      "apps/auth-service/src/utils/pdf-template/users-report.ejs"
-    );
-    console.log("Template path:", templatePath);
-
-    if (!fs.existsSync(templatePath)) {
-      console.error("EJS template not found at:", templatePath);
-      return res
-        .status(500)
-        .json({ error: "PDF template not found on server" });
-    }
-
-    // 3. Render HTML with error handling
-    let html: string;
-    try {
-      html = await ejs.renderFile(templatePath, {
-        users,
-        exportDate: new Date().toLocaleString("en-IN", {
-          timeZone: "Asia/Kolkata",
-        }),
-      });
-      console.log("HTML rendered successfully, length:", html.length);
-
-      if (html.length < 100) {
-        console.error("Rendered HTML is too short:", html);
-        throw new Error("HTML template rendered but appears empty");
-      }
-    } catch (ejsError) {
-      console.error("EJS rendering error:", ejsError);
-      throw new Error(`Template rendering failed: ${ejsError}`);
-    }
-
-    // 4. Launch puppeteer with enhanced options
-    console.log("Launching browser...");
-    try {
-      browser = await puppeteer.launch({
-        headless: true,
-        args: [
-          "--no-sandbox",
-          "--disable-setuid-sandbox",
-          "--disable-dev-shm-usage",
-          "--disable-accelerated-2d-canvas",
-          "--no-first-run",
-          "--no-zygote",
-          "--disable-gpu",
-        ],
-        timeout: 30000,
-      });
-      console.log("Browser launched successfully");
-    } catch (browserError) {
-      console.error("Browser launch error:", browserError);
-      throw new Error(`Failed to launch browser: ${browserError}`);
-    }
-
-    const page = await browser.newPage();
-    await page.setViewport({ width: 1200, height: 800 });
-
-    // 5. Set content with timeout and error handling
-    console.log("Setting page content...");
-    try {
-      await page.setContent(html, {
-        waitUntil: "networkidle0",
-        timeout: 30000,
-      });
-      console.log("Page content set successfully");
-    } catch (contentError) {
-      console.error("Error setting page content:", contentError);
-      throw new Error(`Failed to set page content: ${contentError}`);
-    }
-
-    // 6. Generate PDF with detailed logging
-    console.log("Generating PDF...");
-    console.log("Memory before PDF:", process.memoryUsage());
-
-    let pdfBuffer: Buffer;
-    try {
-      const pdfData = await page.pdf({
-        format: "A4",
-        printBackground: true,
-        margin: { top: "20px", right: "20px", bottom: "20px", left: "20px" },
-        timeout: 30000,
-      });
-
-      // Convert Uint8Array to Buffer if necessary
-      pdfBuffer = Buffer.isBuffer(pdfData) ? pdfData : Buffer.from(pdfData);
-      console.log("PDF generated successfully");
-    } catch (pdfError) {
-      console.error("PDF generation error:", pdfError);
-      throw new Error(`PDF generation failed: ${pdfError}`);
-    }
-
-    // 7. Validate PDF buffer with detailed logging
-    console.log("PDF Buffer validation:", {
-      exists: !!pdfBuffer,
-      isBuffer: Buffer.isBuffer(pdfBuffer),
-      length: pdfBuffer?.length,
-      type: typeof pdfBuffer,
-    });
-
-    if (!pdfBuffer || !Buffer.isBuffer(pdfBuffer)) {
-      const error = "PDF buffer is invalid - not a proper Buffer object";
-      console.error(error);
-      throw new Error(error);
-    }
-
-    if (pdfBuffer.length < 100) {
-      console.error("PDF buffer too small:", pdfBuffer.length);
-      console.log(
-        "Buffer start (hex):",
-        pdfBuffer.slice(0, 50).toString("hex")
-      );
-      console.log("Buffer start (text):", pdfBuffer.slice(0, 50).toString());
-      throw new Error(`PDF buffer too small: ${pdfBuffer.length} bytes`);
-    }
-
-    console.log("PDF buffer is valid, length:", pdfBuffer.length);
-
-    // 8. Set headers and send response
-    const filename = `users-export-${
-      new Date().toISOString().split("T")[0]
-    }.pdf`;
-
-    res.setHeader("Content-Type", "application/pdf");
-    res.setHeader("Content-Disposition", `attachment; filename=${filename}`);
-    res.setHeader("Content-Length", String(pdfBuffer.length));
-    res.setHeader("Cache-Control", "no-cache, no-store, must-revalidate");
-
-    console.log("Sending PDF response...");
-    return res.end(pdfBuffer);
-  } catch (error) {
-    console.error("PDF export error:", error);
-
-    // Close browser if it was opened
-    if (browser) {
-      try {
-        await browser.close();
-        console.log("Browser closed after error");
-      } catch (closeErr) {
-        console.error("Error closing browser:", closeErr);
-      }
-    }
-
-    if (!res.headersSent) {
-      return res.status(500).json({
-        error: "Failed to generate PDF",
-        details: error instanceof Error ? error.message : "Unknown error",
-      });
-    }
-    return;
-  } finally {
-    // Ensure browser cleanup
-    if (browser) {
-      try {
-        await browser.close();
-        console.log("Browser closed in finally block");
-      } catch (closeErr) {
-        console.error("Error closing browser in finally:", closeErr);
-      }
-    }
-  }
-};
-
-// Export Users as CSV

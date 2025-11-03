@@ -324,9 +324,7 @@ const LoginPage = () => {
   };
 
   const handleGoogleLogin = () => {
-    // 🔥 NEW: Store cart items in localStorage before Google OAuth redirect
-    // This ensures cart data persists through the OAuth redirect
-    debugger;
+ 
     const existingCartItems = localStorage.getItem("cartItems");
     if (existingCartItems) {
       // Cart items already exist, they will be synced after OAuth callback
@@ -490,6 +488,19 @@ const LoginPage = () => {
               {loginMutation.isPending ? "Logging in..." : "Log In"}
             </button>
           </form>
+
+          {/* Sign Up Link */}
+          <div className="text-center">
+            <p className="text-sm text-gray-600">
+              Don't have an account?{" "}
+              <Link
+                href="/sign-up"
+                className="text-[#773d4c] hover:underline font-medium"
+              >
+                Sign up
+              </Link>
+            </p>
+          </div>
         </div>
       </div>
     </>

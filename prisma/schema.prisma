@@ -12,11 +12,12 @@ model User {
   name        String
   email       String   @unique
   phone             String?    // optional phone number
-  avatar            String? 
+  avatar            String?
   role            String          @default("user")  // or enum if you want (admin, user, etc.)
   status          String          @default("active") // e.g., active / banned / deleted
   lastLogin       DateTime?
-  password    String
+  password    String?  // Optional: null for Google OAuth users without password
+  authProvider String   @default("email") // "email" or "google" - tracks how user signed up
   isVerified  Boolean  @default(false)
   createdAt   DateTime @default(now())
   updatedAt DateTime? @default(now())

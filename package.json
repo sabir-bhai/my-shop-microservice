@@ -3,7 +3,7 @@
   "version": "0.0.0",
   "license": "MIT",
   "scripts": {
-   "dev": "nodemon --exec \"npx nx run-many --target=serve --all --parallel\"",
+    "dev": "npx nx run-many --target=serve --all --parallel",
     "admin-ui": "npx nx run-many --target=dev --all --projects=admin-ui",
     "user-ui": "npx nx run-many --target=dev --all --projects=user-ui"
   },
@@ -103,6 +103,7 @@
     "esbuild": "^0.19.2",
     "nx": "21.3.11",
     "postcss": "8.4.38",
+    "prisma": "^6.18.0",
     "react-refresh": "^0.10.0",
     "tailwindcss": "3.4.3",
     "tsconfig-paths": "^4.2.0",

@@ -2,12 +2,14 @@ import express, { Router } from "express";
 import {
   userRegistration,
   verifyOtp,
+  resendOtp,
   loginUser,
   getUser,
   updateUserPassword,
   refreshToken,
   verifyUserForgotPassword,
   verifyForgotPasswordOtp,
+  resetPasswordWithToken,
   logoutUser,
   loginAdmin,
   refreshAdminToken,
@@ -21,7 +23,6 @@ import {
   updateUserStatus,
   addAddress,
   getAddresses,
-  exportUsersPDF,
 } from "../controllers/auth.controller";
 import isAuthenticated from "../../../../packages/middleware/isAuthenticated";
 import isAdminAuthenticated from "../../../../packages/middleware/isAdminAuthenticated";
@@ -36,6 +37,7 @@ router.patch("/update-status/:id", updateUserStatus);
 // 🔐 Registration & Verification
 router.post("/user-registration", userRegistration);
 router.post("/verify-otp", verifyOtp);
+router.post("/resend-otp", resendOtp);
 
 // 🔐 Login, Logout & Token Refresh
 router.post("/login", loginUser);
@@ -44,7 +46,8 @@ router.post("/refresh-token", refreshToken);
 
 // 🔐 Forgot Password Flow
 router.post("/forgot-password", verifyUserForgotPassword);
-router.post("/verify-forgot-password-otp", verifyForgotPasswordOtp);
+router.post("/reset-password", resetPasswordWithToken); // New token-based endpoint
+router.post("/verify-forgot-password-otp", verifyForgotPasswordOtp); // Legacy OTP endpoint
 
 // 🔐 User Profile & Password Management
 router.get("/logged-in-user", isAuthenticated, getUser);
@@ -61,7 +64,7 @@ router.put("/update-profile", isAuthenticated, updateUserProfile);
 router.post("/device-token", isAuthenticated, saveDeviceToken);
 router.post("/add-address", isAuthenticated, addAddress);
 router.get("/get-address", isAuthenticated, getAddresses);
-router.get("/users-pdf", exportUsersPDF);
+// router.get("/users-pdf", exportUsersPDF);
 // router.get("/users-csv", exportUsersCSV);
 
 export default router;
