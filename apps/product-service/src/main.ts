@@ -19,7 +19,7 @@ app.use(express.json({ limit: "100mb" }));
 app.use(express.urlencoded({ extended: true, limit: "100mb" }));
 
 app.use(cookieParser());
-app.use("/product/api/products", router);
+app.use("/api", router);
 const port = process.env.PORT || 6002;
 const server = app.listen(port, () => {
   console.log(`Listening at http://localhost:${port}/api`);

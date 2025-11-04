@@ -65,7 +65,7 @@ export default function Page() {
   const createProductMutation = useMutation({
     mutationFn: async (payload: any) => {
       const { data } = await axios.post(
-        "http://localhost:8080/product/api/products",
+        "http://localhost:8080/product/api",
         payload,
         { headers: { "Content-Type": "application/json" } }
       );

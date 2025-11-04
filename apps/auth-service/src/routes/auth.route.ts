@@ -4,8 +4,6 @@ import {
   verifyOtp,
   resendOtp,
   loginUser,
-  getUser,
-  updateUserPassword,
   refreshToken,
   verifyUserForgotPassword,
   verifyForgotPasswordOtp,
@@ -15,26 +13,14 @@ import {
   refreshAdminToken,
   getAdmin,
   logoutAdmin,
-  updateUserProfile,
-  saveDeviceToken,
   googleAuth,
   googleCallback,
-  getAllUser,
-  updateUserStatus,
-  addAddress,
-  getAddresses,
 } from "../controllers/auth.controller";
-import { exportUsersPDF } from "../controllers/pdf-export.controller";
 import isAuthenticated from "../../../../packages/middleware/isAuthenticated";
 import isAdminAuthenticated from "../../../../packages/middleware/isAdminAuthenticated";
 
 const router: Router = express.Router();
 
-//get all the user
-
-router.get("/all-users", getAllUser);
-router.patch("/update-status/:id", updateUserStatus);
-//router.delete("/:id", softDeleteUser);
 // 🔐 Registration & Verification
 router.post("/user-registration", userRegistration);
 router.post("/verify-otp", verifyOtp);
@@ -47,26 +33,19 @@ router.post("/refresh-token", refreshToken);
 
 // 🔐 Forgot Password Flow
 router.post("/forgot-password", verifyUserForgotPassword);
-router.post("/reset-password", resetPasswordWithToken); // New token-based endpoint
+router.post("/reset-password", resetPasswordWithToken);
 router.post("/verify-forgot-password-otp", verifyForgotPasswordOtp); // Legacy OTP endpoint
 
-// 🔐 User Profile & Password Management
-router.get("/logged-in-user", isAuthenticated, getUser);
-router.put("/update-password", isAuthenticated, updateUserPassword);
-
-//=======================it for admin =========================
-router.post("/login-admin", loginAdmin);
+// 🔐 Google OAuth
 router.get("/login-with-google", googleAuth);
 router.get("/google/callback", googleCallback);
+
+// 🔐 Admin Authentication
+router.post("/login-admin", loginAdmin);
 router.post("/admin-refresh-token", refreshAdminToken);
 router.get("/logged-in-admin", isAdminAuthenticated, getAdmin);
 router.post("/logout-admin", isAdminAuthenticated, logoutAdmin);
-router.put("/update-profile", isAuthenticated, updateUserProfile);
-router.post("/device-token", isAuthenticated, saveDeviceToken);
-router.post("/add-address", isAuthenticated, addAddress);
-router.get("/get-address", isAuthenticated, getAddresses);
 
-// 📄 PDF Export (Admin only)
-router.get("/users-pdf", exportUsersPDF);
+// 🔔 Device Token endpoint moved to notification-service
 
 export default router;

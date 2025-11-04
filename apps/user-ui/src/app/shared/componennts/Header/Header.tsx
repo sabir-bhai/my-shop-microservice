@@ -16,13 +16,16 @@ import SearchBar from "./SearchBar";
 import useUser from "../../../hooks/useUser";
 import { toggleCart } from "../../../store/slices/cartSlice";
 import { useSelector } from "react-redux";
+import { useCart } from "../../../hooks/useCart";
 
 export default function Header() {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const dispatch = useAppDispatch();
   const selectCartItems = useSelector((state: RootState) => state.cart.items);
-  console.log("Header rendered", selectCartItems.length);
   const { user, isLoading, isError, refetch } = useUser();
+
+  // Fetch cart items from backend
+  useCart();
 
   return (
     <>

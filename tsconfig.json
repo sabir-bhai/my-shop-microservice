@@ -29,6 +29,18 @@
     },
     {
       "path": "./apps/order-service"
+    },
+    {
+      "path": "./apps/users-service"
+    },
+    {
+      "path": "./apps/notification-service"
+    },
+    {
+      "path": "./apps/payments-service"
+    },
+    {
+      "path": "./apps/reviews-service"
     }
   ]
 }

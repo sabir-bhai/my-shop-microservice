@@ -1,0 +1,43 @@
+generator client {
+  provider = "prisma-client-js"
+  output   = "../../../node_modules/.prisma/payment-client"
+}
+
+datasource db {
+  provider = "mongodb"
+  url      = env("PAYMENT_DATABASE_URL")
+}
+
+enum PaymentStatus {
+  PENDING
+  SUCCESS
+  FAILED
+  REFUNDED
+}
+
+model Payment {
+  id                String        @id @default(auto()) @map("_id") @db.ObjectId
+  orderId           String        @db.ObjectId
+  userId            String        @db.ObjectId
+  amount            Float
+  currency          String        @default("INR")
+  razorpayOrderId   String?
+  razorpayPaymentId String?       @unique
+  razorpaySignature String?
+  status            PaymentStatus @default(PENDING)
+  method            String?
+  createdAt         DateTime      @default(now())
+  updatedAt         DateTime      @updatedAt
+}
+
+model Refund {
+  id              String   @id @default(auto()) @map("_id") @db.ObjectId
+  paymentId       String   @db.ObjectId
+  orderId         String   @db.ObjectId
+  amount          Float
+  reason          String?
+  status          String   @default("PENDING")
+  razorpayRefundId String? @unique
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+}

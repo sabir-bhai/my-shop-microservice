@@ -1,0 +1,59 @@
+generator client {
+  provider = "prisma-client-js"
+  output   = "../../../node_modules/.prisma/order-client"
+}
+
+datasource db {
+  provider = "mongodb"
+  url      = env("ORDER_DATABASE_URL")
+}
+
+enum OrderStatus {
+  CREATED
+  ATTEMPTED
+  PAID
+  CAPTURED
+  FAILED
+}
+
+model Order {
+  id                 String          @id @default(auto()) @map("_id") @db.ObjectId
+  userId             String          @db.ObjectId
+  addressId          String          @db.ObjectId
+  amountPaise        Int
+  currency           String          @default("INR")
+  subtotal           Float
+  shipping           Float           @default(0)
+  total              Float
+  itemsCount         Int
+  status             OrderStatus     @default(CREATED)
+  orderItems         OrderItem[]
+  timeline           OrderTimeline[]
+  razorpayOrderId    String?
+  razorpayPaymentId  String?
+  signatureVerified  Boolean         @default(false)
+  createdAt          DateTime        @default(now())
+  updatedAt          DateTime        @updatedAt
+}
+
+model OrderItem {
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  orderId   String   @db.ObjectId
+  order     Order    @relation(fields: [orderId], references: [id])
+  name      String
+  sku       String
+  price     Float
+  quantity  Int
+  productId String   @db.ObjectId
+  createdAt DateTime @default(now())
+}
+
+model OrderTimeline {
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  orderId   String   @db.ObjectId
+  order     Order    @relation(fields: [orderId], references: [id])
+  status    String
+  date      DateTime
+  completed Boolean  @default(false)
+  createdAt DateTime @default(now())
+}

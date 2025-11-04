@@ -1,0 +1,31 @@
+generator client {
+  provider = "prisma-client-js"
+  output   = "../../../node_modules/.prisma/chat-client"
+}
+
+datasource db {
+  provider = "mongodb"
+  url      = env("CHAT_DATABASE_URL")
+}
+
+model Message {
+  id          String   @id @default(auto()) @map("_id") @db.ObjectId
+  content     String
+  timestamp   DateTime @default(now())
+  read        Boolean  @default(false)
+  fromUserId  String?  @db.ObjectId
+  fromAdminId String?  @db.ObjectId
+  toUserId    String?  @db.ObjectId
+  toAdminId   String?  @db.ObjectId
+}
+
+model ChatRoom {
+  id          String   @id @default(auto()) @map("_id") @db.ObjectId
+  userId      String   @db.ObjectId
+  adminId     String?  @db.ObjectId
+  lastMessage String?
+  lastMessageAt DateTime?
+  unreadCount Int      @default(0)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}

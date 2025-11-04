@@ -152,7 +152,7 @@ export interface Product {
 //   images: { id: string; url: string }[];
 // }
 
-const API_URL = "http://localhost:8080/product/api/products";
+const API_URL = "http://localhost:8080/product/api";
 
 export default function ProductManagement() {
   const qc = useQueryClient();

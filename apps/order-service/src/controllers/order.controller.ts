@@ -255,21 +255,10 @@ export const getAllOrders = async (
             phone: true,
           },
         },
-        address: {
-          select: {
-            city: true,
-            state: true,
-            pincode: true,
-          },
-        },
+        address: true,
         orderItems: {
           include: {
-            product: {
-              select: {
-                title: true,
-                sku: true,
-              },
-            },
+            product: true,
           },
         },
       },

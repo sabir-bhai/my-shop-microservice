@@ -1,0 +1,77 @@
+{
+  "name": "@my-shop-backend/users-service",
+  "version": "0.0.1",
+  "private": true,
+  "nx": {
+    "targets": {
+      "build": {
+        "executor": "@nx/esbuild:esbuild",
+        "outputs": [
+          "{options.outputPath}"
+        ],
+        "defaultConfiguration": "production",
+        "options": {
+          "platform": "node",
+          "outputPath": "apps/users-service/dist",
+          "format": [
+            "cjs"
+          ],
+          "bundle": false,
+          "main": "apps/users-service/src/main.ts",
+          "tsConfig": "apps/users-service/tsconfig.app.json",
+          "assets": [
+            "apps/users-service/src/assets"
+          ],
+          "esbuildOptions": {
+            "sourcemap": true,
+            "outExtension": {
+              ".js": ".js"
+            }
+          }
+        },
+        "configurations": {
+          "development": {},
+          "production": {
+            "generateLockfile": true,
+            "esbuildOptions": {
+              "sourcemap": false,
+              "outExtension": {
+                ".js": ".js"
+              }
+            }
+          }
+        }
+      },
+      "serve": {
+        "continuous": true,
+        "executor": "@nx/js:node",
+        "defaultConfiguration": "development",
+        "dependsOn": [
+          "build"
+        ],
+        "options": {
+          "buildTarget": "@my-shop-backend/users-service:build",
+          "runBuildTargetDependencies": false
+        },
+        "configurations": {
+          "development": {
+            "buildTarget": "@my-shop-backend/users-service:build:development"
+          },
+          "production": {
+            "buildTarget": "@my-shop-backend/users-service:build:production"
+          }
+        }
+      },
+      "docker-build": {
+        "dependsOn": [
+          "build"
+        ],
+        "command": "docker build -f apps/users-service/Dockerfile . -t my-shop-backend-users-service"
+      }
+    }
+  },
+  "dependencies": {
+    "@types/pdfkit": "^0.17.3",
+    "pdfkit": "^0.17.2"
+  }
+}

@@ -23,7 +23,7 @@ const Page = () => {
   const fetchUsers = async (): Promise<UserType[]> => {
     debugger;
     const res = await axios.get(
-      `http://localhost:8080/api/all-users?status=${filter.toLocaleLowerCase()}`
+      `http://localhost:8080/users/api/all?status=${filter.toLocaleLowerCase()}`
     );
     return res.data.users; // ⬅️ return the array
   };
@@ -69,8 +69,8 @@ const Page = () => {
       const statusParam =
         filter.toLowerCase() === "all" ? "" : filter.toLowerCase();
       const url = statusParam
-        ? `http://localhost:8080/api/users-pdf?status=${statusParam}&limit=1000`
-        : `http://localhost:8080/api/users-pdf?limit=1000`;
+        ? `http://localhost:8080/users/api/export/pdf?status=${statusParam}&limit=1000`
+        : `http://localhost:8080/users/api/export/pdf?limit=1000`;
 
       console.log("API url", url);
       const resp = await axios.get(url, {

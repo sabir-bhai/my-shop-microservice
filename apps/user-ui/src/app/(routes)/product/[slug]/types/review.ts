@@ -26,9 +26,8 @@ export interface ReviewStats {
   ratingDistribution: {
     [key: number]: number;
   };
-  // ✅ Removed: these fields don't exist in your API response
-  // recommendationPercentage: number;
-  // totalRecommendations: number;
+  recommendationPercentage: number;
+  totalRecommendations: number;
 }
 
 export interface ReviewPagination {

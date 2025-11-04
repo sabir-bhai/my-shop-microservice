@@ -19,7 +19,7 @@ type User = {
 // API request to get the logged-in user
 const fetchUser = async (isLoggedIn: boolean): Promise<User> => {
   const config = isLoggedIn ? isProtected : {};
-  const response = await axiosInstance.get("/api/logged-in-user", config);
+  const response = await axiosInstance.get("/users/api/profile", config);
 
   return response.data.user;
 };

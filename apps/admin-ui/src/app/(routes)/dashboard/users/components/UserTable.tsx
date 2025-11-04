@@ -19,7 +19,7 @@ function UserTable({ users }: Props) {
   );
   const queryClient = useQueryClient();
   const deleteMutation = useMutation({
-    mutationFn: (id: string) => axios.delete(`http://localhost:8080/api/${id}`),
+    mutationFn: (id: string) => axios.delete(`http://localhost:8080/users/api/${id}`),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["users"] });
     },
@@ -28,7 +28,7 @@ function UserTable({ users }: Props) {
   // Update user status (inactive or active)
   const statusMutation = useMutation({
     mutationFn: ({ id, status }: { id: string; status: string }) =>
-      axios.patch(`http://localhost:8080/api/update-status/${id}`, {
+      axios.patch(`http://localhost:8080/users/api/status/${id}`, {
         status,
       }),
     onSuccess: () => {

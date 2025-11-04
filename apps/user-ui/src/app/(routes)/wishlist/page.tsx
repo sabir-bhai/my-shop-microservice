@@ -52,7 +52,7 @@ const WishlistPage = () => {
       if (wishlistIds.length === 0) return [];
 
       // Fetch products by IDs - adjust this endpoint according to your API
-      const response = await axiosInstance.post("/products/api/by-ids", {
+      const response = await axiosInstance.post("/product/api/by-ids", {
         productIds: wishlistIds,
       });
       return response.data.products || response.data;

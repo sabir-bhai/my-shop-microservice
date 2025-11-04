@@ -160,13 +160,13 @@ enum OrderStatus {
   FAILED
 }
 model Order {
-  id       String @id @default(auto()) @map("_id") @db.ObjectId  
-  userId   String @db.ObjectId
-  user     User   @relation(fields: [userId], references: [id])
-  
+  id       String @id @default(auto()) @map("_id") @db.ObjectId
+  userId   String? @db.ObjectId
+  user     User?   @relation(fields: [userId], references: [id])
+
   // ADDED: Address relation
-  addressId String  @db.ObjectId
-  address   Address @relation(fields: [addressId], references: [id])
+  addressId String?  @db.ObjectId
+  address   Address? @relation(fields: [addressId], references: [id])
   amountPaise       Int
   currency          String      @default("INR")
   

@@ -2,7 +2,11 @@
   "permissions": {
     "allow": [
       "Bash(taskkill:*)",
-      "Bash(cat:*)"
+      "Bash(cat:*)",
+      "Bash(cp:*)",
+      "Bash(curl:*)",
+      "Bash(mkdir:*)",
+      "Bash(rm:*)"
     ],
     "deny": [],
     "ask": []

@@ -38,14 +38,20 @@
       "request": "launch",
       "name": "Debug Gateway",
       "runtimeExecutable": "nx",
-      "runtimeArgs": ["serve", "@my-shop-backend/api-gateway", "--inspect"],
+      "runtimeArgs": [
+        "serve",
+        "@my-shop-backend/api-gateway",
+        "--inspect"
+      ],
       "console": "integratedTerminal",
       "restart": true,
       "protocol": "inspector",
       "port": 9229,
       "localRoot": "${workspaceFolder}",
       "remoteRoot": "${workspaceFolder}",
-      "skipFiles": ["<node_internals>/**"],
+      "skipFiles": [
+        "<node_internals>/**"
+      ],
       "env": {
         "NODE_ENV": "development"
       }
@@ -55,14 +61,20 @@
       "request": "launch",
       "name": "Debug Auth Service",
       "runtimeExecutable": "nx",
-      "runtimeArgs": ["serve", "@my-shop-backend/auth-service", "--inspect"],
+      "runtimeArgs": [
+        "serve",
+        "@my-shop-backend/auth-service",
+        "--inspect"
+      ],
       "console": "integratedTerminal",
       "restart": true,
       "protocol": "inspector",
       "port": 9230,
       "localRoot": "${workspaceFolder}",
       "remoteRoot": "${workspaceFolder}",
-      "skipFiles": ["<node_internals>/**"],
+      "skipFiles": [
+        "<node_internals>/**"
+      ],
       "env": {
         "NODE_ENV": "development"
       }
@@ -83,7 +95,9 @@
       "port": 9231,
       "localRoot": "${workspaceFolder}",
       "remoteRoot": "${workspaceFolder}",
-      "skipFiles": ["<node_internals>/**"],
+      "skipFiles": [
+        "<node_internals>/**"
+      ],
       "env": {
         "NODE_ENV": "development"
       }
@@ -104,7 +118,9 @@
       "port": 9232,
       "localRoot": "${workspaceFolder}",
       "remoteRoot": "${workspaceFolder}",
-      "skipFiles": ["<node_internals>/**"],
+      "skipFiles": [
+        "<node_internals>/**"
+      ],
       "env": {
         "NODE_ENV": "development"
       }
@@ -114,14 +130,20 @@
       "request": "launch",
       "name": "Debug Product Service",
       "runtimeExecutable": "nx",
-      "runtimeArgs": ["serve", "@my-shop-backend/product-service", "--inspect"],
+      "runtimeArgs": [
+        "serve",
+        "@my-shop-backend/product-service",
+        "--inspect"
+      ],
       "console": "integratedTerminal",
       "restart": true,
       "protocol": "inspector",
       "port": 9233,
       "localRoot": "${workspaceFolder}",
       "remoteRoot": "${workspaceFolder}",
-      "skipFiles": ["<node_internals>/**"],
+      "skipFiles": [
+        "<node_internals>/**"
+      ],
       "env": {
         "NODE_ENV": "development"
       }
@@ -131,14 +153,20 @@
       "request": "launch",
       "name": "Debug Order Service",
       "runtimeExecutable": "nx",
-      "runtimeArgs": ["serve", "@my-shop-backend/order-service", "--inspect"],
+      "runtimeArgs": [
+        "serve",
+        "@my-shop-backend/order-service",
+        "--inspect"
+      ],
       "console": "integratedTerminal",
       "restart": true,
       "protocol": "inspector",
       "port": 9233,
       "localRoot": "${workspaceFolder}",
       "remoteRoot": "${workspaceFolder}",
-      "skipFiles": ["<node_internals>/**"],
+      "skipFiles": [
+        "<node_internals>/**"
+      ],
       "env": {
         "NODE_ENV": "development"
       }
@@ -151,7 +179,9 @@
       "restart": true,
       "localRoot": "${workspaceFolder}",
       "remoteRoot": "${workspaceFolder}",
-      "skipFiles": ["<node_internals>/**"]
+      "skipFiles": [
+        "<node_internals>/**"
+      ]
     },
     {
       "type": "node",
@@ -161,7 +191,105 @@
       "restart": true,
       "localRoot": "${workspaceFolder}",
       "remoteRoot": "${workspaceFolder}",
-      "skipFiles": ["<node_internals>/**"]
+      "skipFiles": [
+        "<node_internals>/**"
+      ]
+    },
+    {
+      "type": "node",
+      "request": "launch",
+      "name": "Debug @my-shop-backend/users-service with Nx",
+      "runtimeExecutable": "npx",
+      "runtimeArgs": [
+        "nx",
+        "serve",
+        "@my-shop-backend/users-service"
+      ],
+      "env": {
+        "NODE_OPTIONS": "--inspect=9229"
+      },
+      "console": "integratedTerminal",
+      "internalConsoleOptions": "neverOpen",
+      "skipFiles": [
+        "<node_internals>/**"
+      ],
+      "sourceMaps": true,
+      "outFiles": [
+        "${workspaceFolder}/apps/users-service/dist/**/*.(m|c|)js",
+        "!**/node_modules/**"
+      ]
+    },
+    {
+      "type": "node",
+      "request": "launch",
+      "name": "Debug @my-shop-backend/notification-service with Nx",
+      "runtimeExecutable": "npx",
+      "runtimeArgs": [
+        "nx",
+        "serve",
+        "@my-shop-backend/notification-service"
+      ],
+      "env": {
+        "NODE_OPTIONS": "--inspect=9230"
+      },
+      "console": "integratedTerminal",
+      "internalConsoleOptions": "neverOpen",
+      "skipFiles": [
+        "<node_internals>/**"
+      ],
+      "sourceMaps": true,
+      "outFiles": [
+        "${workspaceFolder}/apps/notification-service/dist/**/*.(m|c|)js",
+        "!**/node_modules/**"
+      ]
+    },
+    {
+      "type": "node",
+      "request": "launch",
+      "name": "Debug @my-shop-backend/payments-service with Nx",
+      "runtimeExecutable": "npx",
+      "runtimeArgs": [
+        "nx",
+        "serve",
+        "@my-shop-backend/payments-service"
+      ],
+      "env": {
+        "NODE_OPTIONS": "--inspect=9231"
+      },
+      "console": "integratedTerminal",
+      "internalConsoleOptions": "neverOpen",
+      "skipFiles": [
+        "<node_internals>/**"
+      ],
+      "sourceMaps": true,
+      "outFiles": [
+        "${workspaceFolder}/apps/payments-service/dist/**/*.(m|c|)js",
+        "!**/node_modules/**"
+      ]
+    },
+    {
+      "type": "node",
+      "request": "launch",
+      "name": "Debug @my-shop-backend/reviews-service with Nx",
+      "runtimeExecutable": "npx",
+      "runtimeArgs": [
+        "nx",
+        "serve",
+        "@my-shop-backend/reviews-service"
+      ],
+      "env": {
+        "NODE_OPTIONS": "--inspect=9232"
+      },
+      "console": "integratedTerminal",
+      "internalConsoleOptions": "neverOpen",
+      "skipFiles": [
+        "<node_internals>/**"
+      ],
+      "sourceMaps": true,
+      "outFiles": [
+        "${workspaceFolder}/apps/reviews-service/dist/**/*.(m|c|)js",
+        "!**/node_modules/**"
+      ]
     }
   ]
 }

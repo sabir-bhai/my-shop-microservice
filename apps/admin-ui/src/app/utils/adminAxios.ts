@@ -34,7 +34,7 @@ adminAxios.interceptors.response.use(
     const is401 = error.response?.status === 401;
     const isRetry = originalRequest._retry;
     const isRefreshCall = originalRequest.url?.endsWith(
-      "/admin/api/refresh-token"
+      "/api/admin-refresh-token"
     );
 
     if (is401 && !isRetry && !isRefreshCall) {
@@ -49,7 +49,7 @@ adminAxios.interceptors.response.use(
 
       try {
         await axios.post(
-          `${process.env.NEXT_PUBLIC_ADMIN_SERVER_URI}/admin/api/refresh-token`,
+          `${process.env.NEXT_PUBLIC_ADMIN_SERVER_URI}/api/admin-refresh-token`,
           {},
           { withCredentials: true }
         );

@@ -1,0 +1,34 @@
+generator client {
+  provider = "prisma-client-js"
+  output   = "../../../node_modules/.prisma/auth-client"
+}
+
+datasource db {
+  provider = "mongodb"
+  url      = env("AUTH_DATABASE_URL")
+}
+
+model User {
+  id           String    @id @default(auto()) @map("_id") @db.ObjectId
+  name         String
+  email        String    @unique
+  phone        String?
+  avatar       String?
+  role         String    @default("user")
+  status       String    @default("active")
+  lastLogin    DateTime?
+  password     String?
+  authProvider String    @default("email")
+  isVerified   Boolean   @default(false)
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime? @default(now())
+}
+
+model Admin {
+  id          String   @id @default(auto()) @map("_id") @db.ObjectId
+  name        String
+  email       String   @unique
+  password    String
+  permissions String[] @default([])
+  createdAt   DateTime @default(now())
+}

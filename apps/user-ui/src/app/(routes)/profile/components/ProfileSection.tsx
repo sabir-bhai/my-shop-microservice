@@ -103,7 +103,7 @@ function ProfileDetails() {
         phone: formData.phone || null,
         avatar: formData.avatar || undefined, // base64 data URL or undefined
       };
-      await axiosInstance.put("/api/update-profile", payload);
+      await axiosInstance.put("/users/api/profile", payload);
       setIsEditing(false);
     } catch (err) {
       console.error(err);

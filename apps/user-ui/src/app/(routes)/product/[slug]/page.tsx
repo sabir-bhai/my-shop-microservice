@@ -45,7 +45,7 @@ interface Product {
 // API function to fetch product
 const fetchProduct = async (id: string): Promise<Product> => {
   const { data } = await axios.get<Product>(
-    `http://localhost:8080/product/api/products/${id}`
+    `http://localhost:8080/product/api/${id}`
   );
   return data;
 };
@@ -53,7 +53,7 @@ const fetchProduct = async (id: string): Promise<Product> => {
 // API function to fetch reviews stats (for product rating display)
 const fetchReviews = async (productId: string) => {
   const res = await axios.get(
-    `http://localhost:8080/product/api/products/${productId}/reviews`,
+    `http://localhost:8080/product/api/${productId}/reviews`,
     {
       params: { page: 1, limit: 10 }, // pagination
     }

@@ -1,0 +1,31 @@
+generator client {
+  provider = "prisma-client-js"
+  output   = "../../../node_modules/.prisma/review-client"
+}
+
+datasource db {
+  provider = "mongodb"
+  url      = env("REVIEW_DATABASE_URL")
+}
+
+model Review {
+  id                 String        @id @default(auto()) @map("_id") @db.ObjectId
+  rating             Int
+  title              String
+  comment            String
+  date               DateTime      @default(now())
+  likes              Int           @default(0)
+  isVerifiedPurchase Boolean       @default(false)
+  recommendsProduct  Boolean       @default(false)
+  productId          String        @db.ObjectId
+  userId             String        @db.ObjectId
+  images             ReviewImage[]
+}
+
+model ReviewImage {
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  url       String
+  review    Review   @relation(fields: [reviewId], references: [id])
+  reviewId  String   @db.ObjectId
+  createdAt DateTime @default(now())
+}

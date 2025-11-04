@@ -4,6 +4,7 @@ import { useForm } from "react-hook-form";
 import { X, Star, Upload, Plus } from "lucide-react";
 import axiosInstance from "apps/user-ui/src/app/utils/axiosinstance";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { toast } from "sonner";
 
 type ReviewFormData = {
   rating: number;
@@ -59,12 +60,12 @@ const WriteReviewSidebar: React.FC<WriteReviewSidebarProps> = ({
 
     files.forEach((file) => {
       if (file.size > MAX_FILE_SIZE) {
-        alert(`File ${file.name} is too large. Maximum size is 50MB.`);
+        toast.error(`File ${file.name} is too large. Maximum size is 50MB.`);
         return;
       }
 
       if (uploadedImages.length >= MAX_IMAGES) {
-        alert(`Maximum ${MAX_IMAGES} images allowed.`);
+        toast.error(`Maximum ${MAX_IMAGES} images allowed.`);
         return;
       }
 
@@ -117,7 +118,7 @@ const WriteReviewSidebar: React.FC<WriteReviewSidebarProps> = ({
   //     };
 
   //     await axiosInstance.post(
-  //       `product/api/products/${productId}/reviews`,
+  //       `product/api/${productId}/reviews`,
   //       payload
   //     );
   //     onReviewSubmitted?.();
@@ -155,19 +156,40 @@ const WriteReviewSidebar: React.FC<WriteReviewSidebarProps> = ({
       };
 
       return axiosInstance.post(
-        `product/api/products/${productId}/reviews`,
+        `product/api/${productId}/reviews`,
         payload
       );
     },
     onSuccess: () => {
-      alert("Review submitted successfully!");
+      toast.success("Review submitted successfully!", {
+        icon: "✅",
+        duration: 3000,
+      });
       reset();
       setUploadedImages([]);
       onClose();
-      queryClient.invalidateQueries({ queryKey: ["reviews", productId] }); // optional if using query
+      queryClient.invalidateQueries({ queryKey: ["reviews", productId] });
     },
-    onError: () => {
-      alert("Failed to submit review. Please try again.");
+    onError: (error: any) => {
+      const errorMessage = error.response?.data?.message || "Failed to submit review. Please try again.";
+
+      // Show specific error message based on response
+      if (errorMessage.includes("already reviewed")) {
+        toast.error("You have already reviewed this product", {
+          icon: "⚠️",
+          duration: 4000,
+        });
+      } else if (errorMessage.includes("Unauthorized")) {
+        toast.error("Please login to submit a review", {
+          icon: "🔒",
+          duration: 4000,
+        });
+      } else {
+        toast.error(errorMessage, {
+          icon: "❌",
+          duration: 4000,
+        });
+      }
     },
   });
 

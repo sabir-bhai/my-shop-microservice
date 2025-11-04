@@ -77,6 +77,23 @@ const cartSlice = createSlice({
       state.items = state.items.filter((i) => i.id !== action.payload);
       localStorage.setItem("cartItems", JSON.stringify(state.items));
     },
+
+    // Set cart items from backend
+    setCartItems(state, action: PayloadAction<CartItem[]>) {
+      state.items = action.payload;
+      // Optionally sync with localStorage
+      if (typeof window !== "undefined") {
+        localStorage.setItem("cartItems", JSON.stringify(state.items));
+      }
+    },
+
+    // Clear cart
+    clearCart(state) {
+      state.items = [];
+      if (typeof window !== "undefined") {
+        localStorage.removeItem("cartItems");
+      }
+    },
   },
 });
 
@@ -88,6 +105,8 @@ export const {
   incrementQuantityLocalStorage,
   decrementQuantityLocalStorage,
   removeFromCartLocalStorage,
+  setCartItems,
+  clearCart,
 } = cartSlice.actions;
 
 export default cartSlice.reducer;

@@ -1,473 +1,14 @@
-// // "use client";
-// // import React from "react";
-// // import { useForm } from "react-hook-form";
-// // import { useMutation } from "@tanstack/react-query";
-// // import axiosInstance from "../../../utils/axiosinstance";
-// // import { toast } from "sonner";
-// // interface AddAddressModalProps {
-// //   isOpen: boolean;
-// //   onClose: () => void;
-// // }
-
-// // const AddAddressModal: React.FC<AddAddressModalProps> = ({
-// //   isOpen,
-// //   onClose,
-// // }) => {
-// //   const {
-// //     register,
-// //     handleSubmit,
-// //     setValue,
-// //     formState: { errors },
-// //   } = useForm({
-// //     defaultValues: {
-// //       pincode: "",
-// //       city: "",
-// //       state: "",
-// //       address: "",
-// //       locality: "",
-// //       type: "Home",
-// //       name: "",
-// //       phone: "",
-// //     },
-// //   });
-
-// //   // React Query mutation
-// //   const { mutate: addAddress, isPending } = useMutation({
-// //     mutationFn: async (body: any) => {
-// //       const res = await axiosInstance.post("/api/add-address", body, {
-// //         withCredentials: true,
-// //       });
-// //       return res.data;
-// //     },
-// //     onSuccess: () => {
-// //       onClose();
-// //     },
-// //     onError: (err: any) => {
-// //       console.log("console error", err?.response?.data);
-// //       const apiMsg =
-// //         err?.response?.data?.error?.message ||
-// //         "Failed to add address. Please try again.";
-
-// //       toast.error(apiMsg);
-// //     },
-// //   });
-
-// //   const onSubmit = (data: any) => {
-// //     addAddress(data); // call the API
-// //   };
-
-// //   const handleTypeSelect = (type: string) => {
-// //     console.log("Type is", type);
-// //     setValue("type", type);
-// //   };
-
-// //   if (!isOpen) return null;
-
-// //   return (
-// //     <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
-// //       <div className="bg-white rounded-lg shadow-lg w-full max-w-md p-6 relative">
-// //         <div className="flex justify-between items-center mb 4">
-// //           <h2 className="text-lg font-semibold text-gray-900">
-// //             Add an Address
-// //           </h2>
-// //           <button
-// //             onClick={onClose}
-// //             className="text-gray-500 hover:text-gray-800 text-xl"
-// //           >
-// //             ✕
-// //           </button>
-// //         </div>
-
-// //         {/* Form starts */}
-// //         <form onSubmit={handleSubmit(onSubmit)}>
-// //           <div className="space-y-4 max-h-[70vh] overflow-y-auto scrollbar-hide">
-// //             {/* Pincode */}
-// //             <div>
-// //               <label className="text-sm font-medium">Pincode *</label>
-// //               <input
-// //                 type="text"
-// //                 {...register("pincode", { required: true })}
-// //                 className="w-full border rounded px-3 py-2"
-// //               />
-// //               {errors.pincode && (
-// //                 <span className="text-xs text-red-500">
-// //                   Pincode is required
-// //                 </span>
-// //               )}
-// //             </div>
-
-// //             {/* City & State */}
-// //             <div className="flex gap-2">
-// //               <div className="flex-1">
-// //                 <label className="text-sm font-medium">City/District *</label>
-// //                 <input
-// //                   type="text"
-// //                   {...register("city", { required: true })}
-// //                   className="w-full border rounded px-3 py-2"
-// //                 />
-// //               </div>
-// //               <div className="flex-1">
-// //                 <label className="text-sm font-medium">State *</label>
-// //                 <input
-// //                   type="text"
-// //                   {...register("state", { required: true })}
-// //                   className="w-full border rounded px-3 py-2"
-// //                 />
-// //               </div>
-// //             </div>
-
-// //             {/* Address */}
-// //             <div>
-// //               <label className="text-sm font-medium">Address *</label>
-// //               <input
-// //                 type="text"
-// //                 {...register("address", { required: true })}
-// //                 className="w-full border rounded px-3 py-2"
-// //               />
-// //             </div>
-
-// //             {/* Locality */}
-// //             <div>
-// //               <label className="text-sm font-medium">Locality/Town *</label>
-// //               <input
-// //                 type="text"
-// //                 {...register("locality", { required: true })}
-// //                 className="w-full border rounded px-3 py-2"
-// //               />
-// //             </div>
-
-// //             {/* Address Type */}
-// //             <div>
-// //               <label className="text-sm font-medium">Save Address as</label>
-// //               <div className="flex gap-2 mt-1">
-// //                 {["Home", "Office", "Others"].map((type) => (
-// //                   <button
-// //                     key={type}
-// //                     type="button"
-// //                     onClick={() => handleTypeSelect(type)}
-// //                     className={`px-4 py-2 rounded border ${
-// //                       // You can display selected type using conditional styling if you want
-// //                       ""
-// //                     }`}
-// //                   >
-// //                     {type}
-// //                   </button>
-// //                 ))}
-// //               </div>
-// //             </div>
-
-// //             {/* Name */}
-// //             <div>
-// //               <label className="text-sm font-medium">Name *</label>
-// //               <input
-// //                 type="text"
-// //                 {...register("name", { required: true })}
-// //                 className="w-full border rounded px-3 py-2"
-// //               />
-// //             </div>
-
-// //             {/* Phone */}
-// //             <div>
-// //               <label className="text-sm font-medium">Mobile No *</label>
-// //               <input
-// //                 type="text"
-// //                 {...register("phone", { required: true })}
-// //                 className="w-full border rounded px-3 py-2"
-// //               />
-// //             </div>
-// //           </div>
-
-// //           {/* Submit */}
-// //           <div className="mt-6 w-full">
-// //             <button
-// //               type="submit"
-// //               className="w-full bg-[#773D4C] text-white py-3 rounded-lg font-medium hover:bg-[#5f303d] transition shadow-SideSheetBoxShadow"
-// //               disabled={isPending}
-// //             >
-// //               {isPending ? "Saving..." : "ADD ADDRESS"}
-// //             </button>
-// //           </div>
-// //         </form>
-// //         {/* Form ends */}
-// //       </div>
-// //     </div>
-// //   );
-// // };
-
-// // export default AddAddressModal;
-
-// // ===== UPDATED AddressList Component =====
-// "use client";
-// import React, { useState } from "react";
-// import { Plus, Edit, MapPin, Phone } from "lucide-react";
-// import { useQuery } from "@tanstack/react-query";
-// import axiosInstance from "../../../utils/axiosinstance";
-
-// type Address = {
-//   id: string;
-//   street: string;
-//   city: string;
-//   state: string;
-//   pincode: string;
-//   country: string;
-//   isDefault?: boolean;
-//   contactName?: string;
-//   contactPhone?: string;
-//   // ADDED: Additional fields for edit functionality
-//   locality?: string;
-//   type?: string;
-//   name?: string;
-//   phone?: string;
-// };
-
-// type AddressListProps = {
-//   onAddAddress: () => void;
-//   onSelectAddress?: (address: Address) => void;
-//   selectedAddressId?: string;
-//   showSelection?: boolean;
-//   // ADDED: Edit address callback
-//   onEditAddress?: (address: Address) => void;
-// };
-
-// const AddressList: React.FC<AddressListProps> = ({
-//   onAddAddress,
-//   onSelectAddress,
-//   selectedAddressId,
-//   showSelection = false,
-//   // ADDED: Edit address prop
-//   onEditAddress,
-// }) => {
-//   const [selectedId, setSelectedId] = useState<string>(selectedAddressId || "");
-
-//   // Fetch addresses using TanStack Query with axios
-//   const {
-//     data: addressesResponse,
-//     isLoading,
-//     isError,
-//     error,
-//     refetch,
-//   } = useQuery({
-//     queryKey: ["addresses"],
-//     queryFn: async () => {
-//       const response = await axiosInstance.get("/api/get-address", {
-//         withCredentials: true,
-//         headers: {
-//           "Content-Type": "application/json",
-//           "Cache-Control": "no-cache",
-//         },
-//       });
-
-//       return response.data;
-//     },
-//     staleTime: 5 * 60 * 1000,
-//     gcTime: 10 * 60 * 1000,
-//     retry: (failureCount, error: any) => {
-//       if (error?.response?.status === 304) {
-//         return false;
-//       }
-//       if (error?.response?.status >= 400 && error?.response?.status < 500) {
-//         return false;
-//       }
-//       return failureCount < 3;
-//     },
-//     refetchOnWindowFocus: false,
-//     refetchOnMount: true,
-//   });
-
-//   const addresses = addressesResponse?.data || [];
-
-//   const handleAddressSelect = (address: Address) => {
-//     if (showSelection) {
-//       setSelectedId(address.id);
-//       onSelectAddress?.(address);
-//     }
-//   };
-
-//   // ADDED: Handle edit address
-//   const handleEditAddress = (address: Address) => {
-//     if (onEditAddress) {
-//       onEditAddress(address);
-//     }
-//   };
-
-//   // Loading state
-//   if (isLoading) {
-//     return (
-//       <div className="flex flex-col items-center justify-center h-64">
-//         <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#6b2c3a]"></div>
-//         <p className="text-gray-600 mt-4">Loading addresses...</p>
-//       </div>
-//     );
-//   }
-
-//   // Error state
-//   if (isError) {
-//     return (
-//       <div className="flex flex-col items-center justify-center h-64 text-center">
-//         <div className="text-red-500 mb-4">
-//           <MapPin size={48} />
-//         </div>
-//         <p className="text-red-600 font-medium mb-2">
-//           Failed to load addresses
-//         </p>
-//         <p className="text-gray-600 text-sm mb-4">
-//           {error?.response?.data?.message ||
-//             error?.message ||
-//             "Something went wrong"}
-//         </p>
-//         <div className="flex gap-2">
-//           <button
-//             onClick={() => refetch()}
-//             className="px-4 py-2 text-[#6b2c3a] border border-[#6b2c3a] rounded hover:bg-[#6b2c3a] hover:text-white transition"
-//           >
-//             Try Again
-//           </button>
-//           <button
-//             onClick={onAddAddress}
-//             className="flex items-center gap-2 bg-[#6b2c3a] text-white px-4 py-2 rounded hover:bg-[#5a252f] transition"
-//           >
-//             <Plus size={16} /> Add Address
-//           </button>
-//         </div>
-//       </div>
-//     );
-//   }
-
-//   // Empty state
-//   if (addresses.length === 0) {
-//     return (
-//       <div className="flex flex-col items-center justify-center h-full text-center py-12">
-//         <div className="w-32 h-32 bg-gray-100 rounded-full flex items-center justify-center mb-6">
-//           <MapPin size={48} className="text-gray-400" />
-//         </div>
-//         <h3 className="text-lg font-medium text-gray-900 mb-2">
-//           No addresses found
-//         </h3>
-//         <p className="text-gray-600 text-sm mb-6 max-w-md">
-//           You don't have any saved addresses. Add an address to continue with
-//           your order.
-//         </p>
-//         <button
-//           onClick={onAddAddress}
-//           className="flex items-center gap-2 bg-[#6b2c3a] text-white px-6 py-3 rounded-lg hover:bg-[#5a252f] transition font-medium"
-//         >
-//           <Plus size={18} /> Add New Address
-//         </button>
-//       </div>
-//     );
-//   }
-
-//   return (
-//     <div className="space-y-6">
-//       {/* Header */}
-//       <div className="flex items-center justify-between">
-//         <div>
-//           <h2 className="text-xl font-semibold text-gray-900">
-//             {showSelection ? "Select Delivery Address" : "Your Addresses"}
-//           </h2>
-//           <p className="text-sm text-gray-600 mt-1">
-//             {addresses.length} address{addresses.length !== 1 ? "es" : ""} saved
-//           </p>
-//         </div>
-//         <button
-//           onClick={onAddAddress}
-//           className="flex items-center gap-2 border border-[#6b2c3a] text-[#6b2c3a] px-4 py-2 rounded-lg hover:bg-[#6b2c3a] hover:text-white transition"
-//         >
-//           <Plus size={16} /> Add New Address
-//         </button>
-//       </div>
-
-//       {/* Address List */}
-//       <div className="space-y-3">
-//         {addresses.map((address: Address) => (
-//           <div
-//             key={address.id}
-//             className={`
-//               border rounded-lg p-4 transition-all cursor-pointer
-//               ${
-//                 showSelection && selectedId === address.id
-//                   ? "border-[#6b2c3a] bg-[#6b2c3a]/5 shadow-md"
-//                   : "border-gray-200 hover:border-gray-300 hover:shadow-sm"
-//               }
-//             `}
-//             onClick={() => handleAddressSelect(address)}
-//           >
-//             <div className="flex items-start gap-3">
-//               {/* Radio button for selection */}
-//               {showSelection && (
-//                 <div className="flex-shrink-0 mt-1">
-//                   <input
-//                     type="radio"
-//                     name="address"
-//                     checked={selectedId === address.id}
-//                     onChange={() => handleAddressSelect(address)}
-//                     className="w-4 h-4 text-[#6b2c3a] border-gray-300 focus:ring-[#6b2c3a]"
-//                   />
-//                 </div>
-//               )}
-
-//               {/* Address Content */}
-//               <div className="flex-1">
-//                 <div className="flex items-center gap-2 mb-2">
-//                   <h3 className="font-medium text-gray-900">
-//                     {address.contactName || address.name || "Home"}
-//                   </h3>
-//                   {address.isDefault && (
-//                     <span className="bg-green-100 text-green-800 text-xs px-2 py-1 rounded-full font-medium">
-//                       DEFAULT
-//                     </span>
-//                   )}
-//                 </div>
-
-//                 <div className="space-y-1 text-sm text-gray-600">
-//                   <p>{address.street}</p>
-//                   <p>
-//                     {address.city}, {address.state} - {address.pincode}
-//                   </p>
-//                   <p>{address.country}</p>
-//                   {(address.contactPhone || address.phone) && (
-//                     <div className="flex items-center gap-1 mt-2">
-//                       <Phone size={14} />
-//                       <span>{address.contactPhone || address.phone}</span>
-//                     </div>
-//                   )}
-//                 </div>
-//               </div>
-
-//               {/* Edit button - UPDATED */}
-//               <div className="flex-shrink-0">
-//                 <button
-//                   onClick={(e) => {
-//                     e.stopPropagation();
-//                     // UPDATED: Call handleEditAddress instead of console.log
-//                     handleEditAddress(address);
-//                   }}
-//                   className="p-2 text-gray-400 hover:text-gray-600 transition"
-//                 >
-//                   <Edit size={16} />
-//                 </button>
-//               </div>
-//             </div>
-//           </div>
-//         ))}
-//       </div>
-//     </div>
-//   );
-// };
-
-// export default AddressList;
-
 "use client";
 import React, { useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import axiosInstance from "../../../utils/axiosinstance";
 import { toast } from "sonner";
+import { X, MapPin, User, Phone, Home, Building2, MoreHorizontal } from "lucide-react";
 
 interface AddAddressModalProps {
   isOpen: boolean;
   onClose: () => void;
-  // ADDED: Edit mode props
   editAddress?: {
     id: string;
     street: string;
@@ -485,11 +26,8 @@ interface AddAddressModalProps {
 const AddAddressModal: React.FC<AddAddressModalProps> = ({
   isOpen,
   onClose,
-  // ADDED: Edit address prop
   editAddress,
 }) => {
-  console.log("This edit address", editAddress);
-  // ADDED: Query client for cache invalidation
   const queryClient = useQueryClient();
 
   const {
@@ -512,13 +50,10 @@ const AddAddressModal: React.FC<AddAddressModalProps> = ({
     },
   });
 
-  // ADDED: Watch the type field to show selected state
   const watchedType = watch("type");
 
-  // ADDED: Effect to populate form when editing
   useEffect(() => {
     if (editAddress) {
-      // Pre-populate form with edit data
       setValue("pincode", editAddress.pincode || "");
       setValue("city", editAddress.city || "");
       setValue("state", editAddress.state || "");
@@ -528,7 +63,6 @@ const AddAddressModal: React.FC<AddAddressModalProps> = ({
       setValue("name", editAddress.name || "");
       setValue("phone", editAddress.phone || "");
     } else {
-      // Reset form for add mode
       reset({
         pincode: "",
         city: "",
@@ -542,11 +76,9 @@ const AddAddressModal: React.FC<AddAddressModalProps> = ({
     }
   }, [editAddress, setValue, reset]);
 
-  // UPDATED: Mutation to handle both add and edit
   const { mutate: saveAddress, isPending } = useMutation({
     mutationFn: async (body: any) => {
       if (editAddress) {
-        // Edit existing address
         const res = await axiosInstance.put(
           `/api/update-address/${editAddress.id}`,
           body,
@@ -556,7 +88,6 @@ const AddAddressModal: React.FC<AddAddressModalProps> = ({
         );
         return res.data;
       } else {
-        // Add new address
         const res = await axiosInstance.post("/api/add-address", body, {
           withCredentials: true,
         });
@@ -564,25 +95,30 @@ const AddAddressModal: React.FC<AddAddressModalProps> = ({
       }
     },
     onSuccess: () => {
-      // ADDED: Invalidate addresses cache to refresh the list
       queryClient.invalidateQueries({ queryKey: ["addresses"] });
 
       toast.success(
         editAddress
           ? "Address updated successfully!"
-          : "Address added successfully!"
+          : "Address added successfully!",
+        {
+          icon: "✓",
+          duration: 3000,
+        }
       );
       onClose();
     },
     onError: (err: any) => {
-      console.log("console error", err?.response?.data);
       const apiMsg =
         err?.response?.data?.error?.message ||
         `Failed to ${
           editAddress ? "update" : "add"
         } address. Please try again.`;
 
-      toast.error(apiMsg);
+      toast.error(apiMsg, {
+        icon: "✕",
+        duration: 4000,
+      });
     },
   });
 
@@ -594,142 +130,266 @@ const AddAddressModal: React.FC<AddAddressModalProps> = ({
     setValue("type", type);
   };
 
+  const getTypeIcon = (type: string) => {
+    switch (type) {
+      case "Home":
+        return <Home className="w-4 h-4" />;
+      case "Office":
+        return <Building2 className="w-4 h-4" />;
+      default:
+        return <MoreHorizontal className="w-4 h-4" />;
+    }
+  };
+
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
-      <div className="bg-white rounded-lg shadow-lg w-full max-w-md p-6 relative">
-        <div className="flex justify-between items-center mb-4">
-          {/* UPDATED: Dynamic title based on edit mode */}
-          <h2 className="text-lg font-semibold text-gray-900">
-            {editAddress ? "Edit Address" : "Add an Address"}
-          </h2>
-          <button
-            onClick={onClose}
-            className="text-gray-500 hover:text-gray-800 text-xl"
-          >
-            ✕
-          </button>
+    <div className="fixed inset-0 flex items-center justify-center z-50 backdrop-blur-sm" style={{ backgroundColor: 'rgba(119, 61, 76, 0.6)' }}>
+      <div className="bg-surface-10 rounded-2xl shadow-BagBoxShadowV2 w-full max-w-lg overflow-hidden animate-in fade-in zoom-in duration-300">
+        {/* Header */}
+        <div className="bg-gradient-to-br from-secondary-60 to-secondary-50 px-6 py-5">
+          <div className="flex justify-between items-center">
+            <div className="flex items-center gap-3">
+              <div className="bg-surface-10 rounded-full w-10 h-10 flex items-center justify-center">
+                <MapPin className="w-5 h-5 text-secondary-60" />
+              </div>
+              <h2 className="sub-heading-01-bold text-surface-10">
+                {editAddress ? "Edit Address" : "Add New Address"}
+              </h2>
+            </div>
+            <button
+              onClick={onClose}
+              className="text-surface-10 hover:bg-surface-10 hover:bg-opacity-20 rounded-full p-2 transition-all duration-300"
+              aria-label="Close modal"
+            >
+              <X className="w-5 h-5" />
+            </button>
+          </div>
         </div>
 
-        {/* Form starts */}
-        <form onSubmit={handleSubmit(onSubmit)}>
-          <div className="space-y-4 max-h-[70vh] overflow-y-auto scrollbar-hide">
-            {/* Pincode */}
+        {/* Form */}
+        <form onSubmit={handleSubmit(onSubmit)} className="p-6">
+          <div className="space-y-5 max-h-[65vh] overflow-y-auto scrollbar-hide pr-2">
+            {/* Address Type Selection */}
             <div>
-              <label className="text-sm font-medium">Pincode *</label>
-              <input
-                type="text"
-                {...register("pincode", { required: true })}
-                className="w-full border rounded px-3 py-2"
-              />
-              {errors.pincode && (
-                <span className="text-xs text-red-500">
-                  Pincode is required
-                </span>
-              )}
-            </div>
-
-            {/* City & State */}
-            <div className="flex gap-2">
-              <div className="flex-1">
-                <label className="text-sm font-medium">City/District *</label>
-                <input
-                  type="text"
-                  {...register("city", { required: true })}
-                  className="w-full border rounded px-3 py-2"
-                />
-              </div>
-              <div className="flex-1">
-                <label className="text-sm font-medium">State *</label>
-                <input
-                  type="text"
-                  {...register("state", { required: true })}
-                  className="w-full border rounded px-3 py-2"
-                />
-              </div>
-            </div>
-
-            {/* Address */}
-            <div>
-              <label className="text-sm font-medium">Address *</label>
-              <input
-                type="text"
-                {...register("address", { required: true })}
-                className="w-full border rounded px-3 py-2"
-              />
-            </div>
-
-            {/* Locality */}
-            <div>
-              <label className="text-sm font-medium">Locality/Town *</label>
-              <input
-                type="text"
-                {...register("locality", { required: true })}
-                className="w-full border rounded px-3 py-2"
-              />
-            </div>
-
-            {/* Address Type - UPDATED with visual feedback */}
-            <div>
-              <label className="text-sm font-medium">Save Address as</label>
-              <div className="flex gap-2 mt-1">
+              <label className="paragraph-06-medium text-neutral-80 mb-3 block">
+                Address Type
+              </label>
+              <div className="grid grid-cols-3 gap-3">
                 {["Home", "Office", "Others"].map((type) => (
                   <button
                     key={type}
                     type="button"
                     onClick={() => handleTypeSelect(type)}
-                    className={`px-4 py-2 rounded border transition ${
+                    className={`paragraph-06-medium h-12 rounded-lg border-2 transition-all duration-300 flex items-center justify-center gap-2 ${
                       watchedType === type
-                        ? "bg-[#773D4C] text-white border-[#773D4C]"
-                        : "bg-white text-gray-700 border-gray-300 hover:border-[#773D4C]"
+                        ? "bg-secondary-60 text-surface-10 border-secondary-60 shadow-custom"
+                        : "bg-surface-10 text-neutral-60 border-neutral-10 hover:border-secondary-60 hover:text-secondary-60"
                     }`}
                   >
-                    {type}
+                    {getTypeIcon(type)}
+                    <span>{type}</span>
                   </button>
                 ))}
               </div>
             </div>
 
-            {/* Name */}
-            <div>
-              <label className="text-sm font-medium">Name *</label>
-              <input
-                type="text"
-                {...register("name", { required: true })}
-                className="w-full border rounded px-3 py-2"
-              />
+            {/* Contact Details */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <label className="paragraph-07-medium text-neutral-80 mb-2 flex items-center gap-1">
+                  <User className="w-4 h-4 text-secondary-60" />
+                  Full Name <span className="text-error-40">*</span>
+                </label>
+                <input
+                  type="text"
+                  {...register("name", { required: "Name is required" })}
+                  className={`w-full h-11 px-4 paragraph-06-regular border-2 rounded-lg outline-none transition-all duration-300 bg-surface-10 ${
+                    errors.name
+                      ? "border-error-40 focus:border-error-40"
+                      : "border-neutral-10 focus:border-secondary-60"
+                  }`}
+                  placeholder="Enter your name"
+                />
+                {errors.name && (
+                  <span className="paragraph-09-medium text-error-40 mt-1 block">
+                    {errors.name.message}
+                  </span>
+                )}
+              </div>
+
+              <div>
+                <label className="paragraph-07-medium text-neutral-80 mb-2 flex items-center gap-1">
+                  <Phone className="w-4 h-4 text-secondary-60" />
+                  Mobile Number <span className="text-error-40">*</span>
+                </label>
+                <input
+                  type="tel"
+                  {...register("phone", {
+                    required: "Phone number is required",
+                    pattern: {
+                      value: /^[0-9]{10}$/,
+                      message: "Enter a valid 10-digit number",
+                    },
+                  })}
+                  className={`w-full h-11 px-4 paragraph-06-regular border-2 rounded-lg outline-none transition-all duration-300 bg-surface-10 ${
+                    errors.phone
+                      ? "border-error-40 focus:border-error-40"
+                      : "border-neutral-10 focus:border-secondary-60"
+                  }`}
+                  placeholder="10-digit mobile number"
+                  maxLength={10}
+                />
+                {errors.phone && (
+                  <span className="paragraph-09-medium text-error-40 mt-1 block">
+                    {errors.phone.message}
+                  </span>
+                )}
+              </div>
             </div>
 
-            {/* Phone */}
+            {/* Address Details */}
             <div>
-              <label className="text-sm font-medium">Mobile No *</label>
+              <label className="paragraph-07-medium text-neutral-80 mb-2 block">
+                Address (House No, Building, Street) <span className="text-error-40">*</span>
+              </label>
               <input
                 type="text"
-                {...register("phone", { required: true })}
-                className="w-full border rounded px-3 py-2"
+                {...register("address", { required: "Address is required" })}
+                className={`w-full h-11 px-4 paragraph-06-regular border-2 rounded-lg outline-none transition-all duration-300 bg-surface-10 ${
+                  errors.address
+                    ? "border-error-40 focus:border-error-40"
+                    : "border-neutral-10 focus:border-secondary-60"
+                }`}
+                placeholder="House no., Building name, Street"
               />
+              {errors.address && (
+                <span className="paragraph-09-medium text-error-40 mt-1 block">
+                  {errors.address.message}
+                </span>
+              )}
+            </div>
+
+            <div>
+              <label className="paragraph-07-medium text-neutral-80 mb-2 block">
+                Locality/Area <span className="text-error-40">*</span>
+              </label>
+              <input
+                type="text"
+                {...register("locality", { required: "Locality is required" })}
+                className={`w-full h-11 px-4 paragraph-06-regular border-2 rounded-lg outline-none transition-all duration-300 bg-surface-10 ${
+                  errors.locality
+                    ? "border-error-40 focus:border-error-40"
+                    : "border-neutral-10 focus:border-secondary-60"
+                }`}
+                placeholder="Locality, Town or Area"
+              />
+              {errors.locality && (
+                <span className="paragraph-09-medium text-error-40 mt-1 block">
+                  {errors.locality.message}
+                </span>
+              )}
+            </div>
+
+            {/* City, State, Pincode */}
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <div>
+                <label className="paragraph-07-medium text-neutral-80 mb-2 block">
+                  City <span className="text-error-40">*</span>
+                </label>
+                <input
+                  type="text"
+                  {...register("city", { required: "City is required" })}
+                  className={`w-full h-11 px-4 paragraph-06-regular border-2 rounded-lg outline-none transition-all duration-300 bg-surface-10 ${
+                    errors.city
+                      ? "border-error-40 focus:border-error-40"
+                      : "border-neutral-10 focus:border-secondary-60"
+                  }`}
+                  placeholder="City"
+                />
+                {errors.city && (
+                  <span className="paragraph-09-medium text-error-40 mt-1 block">
+                    {errors.city.message}
+                  </span>
+                )}
+              </div>
+
+              <div>
+                <label className="paragraph-07-medium text-neutral-80 mb-2 block">
+                  State <span className="text-error-40">*</span>
+                </label>
+                <input
+                  type="text"
+                  {...register("state", { required: "State is required" })}
+                  className={`w-full h-11 px-4 paragraph-06-regular border-2 rounded-lg outline-none transition-all duration-300 bg-surface-10 ${
+                    errors.state
+                      ? "border-error-40 focus:border-error-40"
+                      : "border-neutral-10 focus:border-secondary-60"
+                  }`}
+                  placeholder="State"
+                />
+                {errors.state && (
+                  <span className="paragraph-09-medium text-error-40 mt-1 block">
+                    {errors.state.message}
+                  </span>
+                )}
+              </div>
+
+              <div>
+                <label className="paragraph-07-medium text-neutral-80 mb-2 block">
+                  Pincode <span className="text-error-40">*</span>
+                </label>
+                <input
+                  type="text"
+                  {...register("pincode", {
+                    required: "Pincode is required",
+                    pattern: {
+                      value: /^[0-9]{6}$/,
+                      message: "Enter a valid 6-digit pincode",
+                    },
+                  })}
+                  className={`w-full h-11 px-4 paragraph-06-regular border-2 rounded-lg outline-none transition-all duration-300 bg-surface-10 ${
+                    errors.pincode
+                      ? "border-error-40 focus:border-error-40"
+                      : "border-neutral-10 focus:border-secondary-60"
+                  }`}
+                  placeholder="6-digit"
+                  maxLength={6}
+                />
+                {errors.pincode && (
+                  <span className="paragraph-09-medium text-error-40 mt-1 block">
+                    {errors.pincode.message}
+                  </span>
+                )}
+              </div>
             </div>
           </div>
 
-          {/* Submit - UPDATED button text */}
-          <div className="mt-6 w-full">
+          {/* Action Buttons */}
+          <div className="flex gap-3 mt-6 pt-6 border-t border-neutral-10">
+            <button
+              type="button"
+              onClick={onClose}
+              className="flex-1 paragraph-06-medium text-neutral-60 h-12 rounded-lg border-2 border-neutral-10 hover:border-neutral-20 hover:bg-neutral-10 transition-all duration-300"
+            >
+              Cancel
+            </button>
             <button
               type="submit"
-              className="w-full bg-[#773D4C] text-white py-3 rounded-lg font-medium hover:bg-[#5f303d] transition shadow-SideSheetBoxShadow"
               disabled={isPending}
+              className="flex-1 paragraph-06-medium bg-gradient-to-r from-secondary-60 to-secondary-50 text-surface-10 h-12 rounded-lg hover:from-secondary-70 hover:to-secondary-60 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-300 shadow-custom hover:shadow-lg transform hover:-translate-y-0.5 flex items-center justify-center gap-2"
             >
-              {isPending
-                ? editAddress
-                  ? "Updating..."
-                  : "Saving..."
-                : editAddress
-                ? "UPDATE ADDRESS"
-                : "ADD ADDRESS"}
+              {isPending ? (
+                <>
+                  <div className="w-4 h-4 border-2 border-surface-10 border-t-transparent rounded-full animate-spin"></div>
+                  <span>{editAddress ? "Updating..." : "Saving..."}</span>
+                </>
+              ) : (
+                <span>{editAddress ? "UPDATE ADDRESS" : "SAVE ADDRESS"}</span>
+              )}
             </button>
           </div>
         </form>
-        {/* Form ends */}
       </div>
     </div>
   );

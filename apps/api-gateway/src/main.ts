@@ -1,5 +1,3 @@
-
-
 import express, { Request, Response, NextFunction, Application } from "express";
 import cors, { CorsOptions } from "cors";
 import proxy from "express-http-proxy";
@@ -7,7 +5,6 @@ import rateLimit, { RateLimitRequestHandler } from "express-rate-limit";
 import dotenv from "dotenv";
 import cookieParser from "cookie-parser";
 import morgan from "morgan";
-import { seedAdmin } from "./seeds/admin.seeder";
 import { setupSocketIO } from "../../../packages/libs/websocket";
 import http, { Server } from "http";
 import { errorHandler } from "../../../packages/error-handler/error-middleware";
@@ -146,8 +143,6 @@ const generalLimiter: RateLimitRequestHandler = createRateLimiter(
   "Too many requests, please try again later."
 );
 
-
-
 app.use(generalLimiter);
 
 // Health check endpoint (before proxies)
@@ -155,7 +150,7 @@ app.get("/health", (req: Request, res: Response): void => {
   const response: HealthCheckResponse = {
     status: "OK",
     timestamp: new Date().toISOString(),
-    services: ["order", "cart", "chat", "product", "auth"],
+    services: ["order", "cart", "chat", "product", "auth", "users", "reviews"],
   };
   res.status(200).json(response);
 });
@@ -201,15 +196,23 @@ const createProxyMiddleware = (
 };
 
 // Proxy routes with enhanced error handling
+
+app.use(
+  "/reviews",
+  createProxyMiddleware("http://localhost:6007", { "^/reviews": "" })
+);
+app.use(
+  "/users",
+  createProxyMiddleware("http://localhost:6006", { "^/users": "" })
+);
 app.use("/order", createProxyMiddleware("http://localhost:6005"));
 app.use("/cart", createProxyMiddleware("http://localhost:6004"));
 app.use("/chat", createProxyMiddleware("http://localhost:6003"));
-app.use("/product", createProxyMiddleware("http://localhost:6002"));
-
-
+app.use(
+  "/product",
+  createProxyMiddleware("http://localhost:6002", { "^/product": "" })
+);
 app.use("/", createProxyMiddleware("http://localhost:6001"));
-
-
 
 // Handle 404 for API routes specifically
 app.use("/api/*", (req: Request, res: Response, next: NextFunction): void => {
@@ -231,6 +234,8 @@ app.get("*", (req: Request, res: Response): void => {
       "/cart",
       "/chat",
       "/product",
+      "/users",
+      "/reviews",
       "/health",
     ],
   };
@@ -277,10 +282,6 @@ server.listen(port, async (): Promise<void> => {
   console.log(`📋 Health check available at http://localhost:${port}/health`);
 
   try {
-    // Run seeder when server starts
-    await seedAdmin();
-    console.log("✅ Admin seeder executed");
-
     // Setup WebSocket + Redis
     await setupSocketIO(server);
     console.log("✅ WebSocket server initialized");

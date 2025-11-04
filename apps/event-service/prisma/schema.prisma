@@ -1,0 +1,42 @@
+generator client {
+  provider = "prisma-client-js"
+  output   = "../../../node_modules/.prisma/event-client"
+}
+
+datasource db {
+  provider = "mongodb"
+  url      = env("EVENT_DATABASE_URL")
+}
+
+enum EventType {
+  USER_REGISTERED
+  USER_LOGGED_IN
+  PRODUCT_CREATED
+  PRODUCT_UPDATED
+  ORDER_CREATED
+  ORDER_UPDATED
+  PAYMENT_SUCCESS
+  PAYMENT_FAILED
+  REVIEW_CREATED
+  CART_UPDATED
+}
+
+model Event {
+  id        String    @id @default(auto()) @map("_id") @db.ObjectId
+  type      EventType
+  entityId  String    @db.ObjectId
+  userId    String?   @db.ObjectId
+  data      Json?
+  timestamp DateTime  @default(now())
+}
+
+model EventLog {
+  id          String   @id @default(auto()) @map("_id") @db.ObjectId
+  eventType   String
+  service     String
+  payload     Json
+  processedBy String[]
+  status      String   @default("PENDING")
+  createdAt   DateTime @default(now())
+  processedAt DateTime?
+}
