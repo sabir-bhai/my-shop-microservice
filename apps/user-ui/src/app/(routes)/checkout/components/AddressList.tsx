@@ -57,7 +57,7 @@ const AddressList: React.FC<AddressListProps> = ({
   } = useQuery({
     queryKey: ["addresses"],
     queryFn: async () => {
-      const response = await axiosInstance.get("/api/get-address", {
+      const response = await axiosInstance.get("/users/api/address", {
         withCredentials: true,
         headers: {
           "Content-Type": "application/json",
@@ -130,49 +130,6 @@ const AddressList: React.FC<AddressListProps> = ({
   }
 
   // Error state
-  if (isError) {
-    return (
-      <div className="bg-surface-10 rounded-xl shadow-BagBoxShadow overflow-hidden">
-        <div className="px-6 py-4">
-          <div className="flex items-center gap-3">
-            <MapPin className="w-6 h-6 text-surface-10" />
-            <h2 className="sub-heading-01-bold text-surface-10">
-              Delivery Address
-            </h2>
-          </div>
-        </div>
-        <div className="flex flex-col items-center justify-center py-16 px-6 text-center">
-          <div className="w-20 h-20 bg-error-10 rounded-full flex items-center justify-center mb-4">
-            <AlertCircle className="w-10 h-10 text-error-40" />
-          </div>
-          <h3 className="sub-heading-04-bold text-neutral-90 mb-2">
-            Failed to Load Addresses
-          </h3>
-          <p className="paragraph-06-regular text-neutral-60 mb-6 max-w-md">
-            {error?.response?.data?.message ||
-              error?.message ||
-              "Something went wrong. Please try again."}
-          </p>
-          <div className="flex gap-3">
-            <button
-              onClick={() => refetch()}
-              className="flex items-center gap-2 paragraph-06-medium text-secondary-60 border-2 border-secondary-60 px-5 py-2.5 rounded-lg hover:bg-secondary-60 hover:text-surface-10 transition-all duration-300"
-            >
-              <RefreshCw className="w-4 h-4" />
-              Try Again
-            </button>
-            <button
-              onClick={onAddAddress}
-              className="flex items-center gap-2 paragraph-06-medium bg-gradient-to-r from-secondary-60 to-secondary-50 text-surface-10 px-5 py-2.5 rounded-lg hover:from-secondary-70 hover:to-secondary-60 transition-all duration-300 shadow-custom"
-            >
-              <Plus className="w-4 h-4" />
-              Add Address
-            </button>
-          </div>
-        </div>
-      </div>
-    );
-  }
 
   // Empty state
   if (addresses.length === 0) {

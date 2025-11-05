@@ -3,7 +3,6 @@
 import React, { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { useParams } from "next/navigation";
-import axios from "axios";
 import {
   ChevronLeft,
   ChevronRight,
@@ -44,21 +43,25 @@ interface Product {
 
 // API function to fetch product
 const fetchProduct = async (id: string): Promise<Product> => {
-  const { data } = await axios.get<Product>(
-    `http://localhost:8080/product/api/${id}`
-  );
+  const { data } = await axiosInstance.get<Product>(`/product/api/${id}`, {
+    headers: {
+      "Cache-Control": "no-cache",
+      Pragma: "no-cache",
+    },
+  });
   return data;
 };
 
 // API function to fetch reviews stats (for product rating display)
 const fetchReviews = async (productId: string) => {
-  const res = await axios.get(
-    `http://localhost:8080/product/api/${productId}/reviews`,
-    {
-      params: { page: 1, limit: 10 }, // pagination
-    }
-  );
-  return res.data.data;
+  const res = await axiosInstance.get(`/reviews/api/products/${productId}/reviews`, {
+    params: { page: 1, limit: 10 }, // pagination
+    headers: {
+      "Cache-Control": "no-cache",
+      Pragma: "no-cache",
+    },
+  });
+  return res.data;
 };
 
 const Page = () => {
@@ -83,14 +86,17 @@ const Page = () => {
   });
 
   // Fetch review stats for product rating display
-  const { data, isLoading, isError, refetch } = useQuery({
+  const {
+    data,
+    isLoading: reviewsLoading,
+    isError: reviewsError,
+    refetch,
+  } = useQuery({
     queryKey: ["reviews", id],
     queryFn: () => fetchReviews(id),
+    enabled: !!id,
     staleTime: 1000 * 60 * 5, // cache for 5 minutes
   });
-
-  if (isLoading) return <p>Loading reviews...</p>;
-  if (isError) return <p>Failed to load reviews.</p>;
 
   const sizes = ["120 ML", "250 ML", "500 ML", "1000 ML"];
 
@@ -341,23 +347,6 @@ const Page = () => {
               </div>
             </div>
 
-            {/* Buttons */}
-            {/* <div className="flex gap-4">
-              <button
-                className={`flex-1 py-3 px-6 rounded-lg font-medium transition ${
-                  product.stockQuantity > 0
-                    ? "bg-[#773d4c] text-white hover:bg-[#5f2e38]"
-                    : "bg-gray-400 text-white cursor-not-allowed"
-                }`}
-                disabled={product.stockQuantity <= 0}
-              >
-                {product.stockQuantity > 0 ? "Add to Bag" : "Out of Stock"}
-              </button>
-              <button className="w-12 h-12 border border-gray-300 rounded-lg flex items-center justify-center hover:bg-gray-50">
-                <Heart className="w-5 h-5" />
-              </button>
-            </div> */}
-
             {/* Additional Info */}
             <div className="border-t pt-4 text-sm text-gray-600 space-y-1">
               {product.sku && (
@@ -384,12 +373,22 @@ const Page = () => {
       </div>
       {/* Reviews Section - Using Real API */}
 
-      <CustomerReviews
-        stats={data.statistics}
-        reviews={data.reviews}
-        id={id}
-        refetch={refetch}
-      />
+      {reviewsLoading ? (
+        <div className="max-w-7xl mx-auto p-6">
+          <p className="text-center text-gray-600">Loading reviews...</p>
+        </div>
+      ) : reviewsError ? (
+        <div className="max-w-7xl mx-auto p-6">
+          <p className="text-center text-red-600">Failed to load reviews.</p>
+        </div>
+      ) : data ? (
+        <CustomerReviews
+          stats={data.statistics}
+          reviews={data.reviews}
+          id={id}
+          refetch={refetch}
+        />
+      ) : null}
     </div>
   );
 };

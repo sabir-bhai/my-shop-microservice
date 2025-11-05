@@ -2,19 +2,36 @@ import express from "express";
 import cors from "cors";
 import dotenv from "dotenv";
 import cookieParser from "cookie-parser";
+import path from "path";
 import router from "./routes/auth.route";
 import { errorHandler } from "../../../packages/error-handler/error-middleware";
 import { seedAdmin } from "./seeds/admin.seeder";
 
-dotenv.config();
+dotenv.config({ path: path.resolve(__dirname, "../../../.env") });
 
 const app = express();
 
 const corsOptions = {
-  origin: ["http://localhost:3000", "http://localhost:8080"],
-  allowedHeaders: ["Content-Type", "Authorization", "X-Requested-With"],
+  origin: [
+    "http://localhost:3000",
+    "http://localhost:3001",
+    "http://localhost:5173", // Vite default
+    "http://localhost:8080",
+    "http://localhost:8081",
+  ],
+  allowedHeaders: [
+    "Content-Type",
+    "Authorization",
+    "X-Requested-With",
+    "Accept",
+    "Origin",
+    "Cache-Control",
+    "X-File-Name",
+  ],
   methods: ["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"],
   credentials: true,
+  exposedHeaders: ["set-cookie"],
+  optionsSuccessStatus: 200,
 };
 
 app.use(cors(corsOptions));

@@ -1,7 +1,6 @@
 import { Request, Response } from "express";
-import { prisma } from "../../../../packages/libs/prisma";
-import { imagekit } from "../../../../packages/libs/imagekit";
-
+import { prisma } from "../lib/prisma";
+ import { imagekit } from "../../../../packages/libs/imagekit";
 const uploadImagesToImageKit = async (images: any[]): Promise<string[]> => {
   const uploadPromises = images.map(async (image) => {
     try {
@@ -25,7 +24,7 @@ const uploadImagesToImageKit = async (images: any[]): Promise<string[]> => {
 
 export const addReviewToProduct = async (req: any, res: Response) => {
   try {
-    const { id: productId } = req.params;
+    const { productId } = req.params;
     const userId = req.user?.id;
 
     const {
@@ -54,15 +53,6 @@ export const addReviewToProduct = async (req: any, res: Response) => {
       return res.status(400).json({
         message: "Rating must be between 1 and 5",
       });
-    }
-
-    // Check if product exists
-    const productExists = await prisma.product.findUnique({
-      where: { id: productId },
-    });
-
-    if (!productExists) {
-      return res.status(404).json({ message: "Product not found" });
     }
 
     // Check if user already reviewed this product
@@ -102,25 +92,12 @@ export const addReviewToProduct = async (req: any, res: Response) => {
         recommendsProduct: Boolean(recommendsProduct),
         productId,
         userId,
+        userName: req.user?.name || req.user?.email || "Anonymous", // Store user's name
         images: {
           create: imageUrls.map((url) => ({ url })),
         },
       },
       include: {
-        user: {
-          select: {
-            id: true,
-            name: true,
-            email: true,
-          },
-        },
-        product: {
-          select: {
-            id: true,
-            title: true,
-            slug: true,
-          },
-        },
         images: true, // include the newly created images
       },
     });
@@ -143,9 +120,7 @@ export const addReviewToProduct = async (req: any, res: Response) => {
 // Get Reviews for a Product
 export const getReviewsByProduct = async (req: any, res: Response) => {
   try {
-    // Change this line to match your route parameter
-    const { id: productId } = req.params; // If using /:id/reviews
-    // OR const { productId } = req.params; // If using /:productId/reviews
+    const { productId } = req.params;
 
     const {
       page = 1,
@@ -161,15 +136,6 @@ export const getReviewsByProduct = async (req: any, res: Response) => {
 
     console.log("Product ID received:", productId); // Debug log
 
-    // Check if product exists
-    const productExists = await prisma.product.findUnique({
-      where: { id: productId as string },
-    });
-
-    if (!productExists) {
-      return res.status(404).json({ message: "Product not found" });
-    }
-
     // Calculate pagination
     const skip = (Number(page) - 1) * Number(limit);
     const take = Number(limit);
@@ -182,13 +148,19 @@ export const getReviewsByProduct = async (req: any, res: Response) => {
     const [reviews, totalCount] = await Promise.all([
       prisma.review.findMany({
         where: { productId: productId as string },
-        include: {
-          user: {
-            select: {
-              id: true,
-              name: true,
-            },
-          },
+        select: {
+          id: true,
+          rating: true,
+          title: true,
+          comment: true,
+          date: true,
+          likes: true,
+          isVerifiedPurchase: true,
+          recommendsProduct: true,
+          productId: true,
+          userId: true,
+          images: true,
+          // Exclude userName to avoid null error with old client
         },
         orderBy,
         skip,
@@ -245,10 +217,19 @@ export const getReviewsByProduct = async (req: any, res: Response) => {
 
     const totalPages = Math.ceil(totalCount / take);
 
+    // Transform reviews to include user object for frontend compatibility
+    const reviewsWithUserData = reviews.map((review: any) => ({
+      ...review,
+      user: {
+        id: review.userId,
+        name: "Anonymous User", // userName field removed to avoid null errors
+      },
+    }));
+
     res.status(200).json({
       success: true,
       data: {
-        reviews,
+        reviews: reviewsWithUserData,
         pagination: {
           currentPage: Number(page),
           totalPages,

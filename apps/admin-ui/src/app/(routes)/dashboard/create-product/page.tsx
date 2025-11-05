@@ -6,7 +6,7 @@ import ProductImages from "./components/ProductImages";
 import ActionButtons from "./components/ActionButtons";
 import { useForm } from "react-hook-form";
 import { useMutation } from "@tanstack/react-query";
-import axios from "axios";
+import adminAxios from "@/app/utils/adminAxios";
 
 interface FormData {
   title: string;
@@ -64,7 +64,7 @@ export default function Page() {
   // React Query Mutation
   const createProductMutation = useMutation({
     mutationFn: async (payload: any) => {
-      const { data } = await axios.post(
+      const { data } = await adminAxios.post(
         "http://localhost:8080/product/api",
         payload,
         { headers: { "Content-Type": "application/json" } }
@@ -128,13 +128,12 @@ export default function Page() {
             handleRemoveImage={handleRemoveImage}
           />
         </div>
-      </form>
 
-      {/* Fixed ActionButtons container - respects parent width */}
-      {/* Fixed ActionButtons container - respects parent width */}
-      <div className="fixed bottom-0  w-[78%] right-0 bg-gray-800 border border-gray-700  px-6">
-        <ActionButtons isLoading={createProductMutation.isPending} />
-      </div>
+        {/* Fixed ActionButtons container - respects parent width */}
+        <div className="fixed bottom-0  w-[78%] right-0 bg-gray-800 border border-gray-700  px-6">
+          <ActionButtons isLoading={createProductMutation.isPending} />
+        </div>
+      </form>
     </div>
   );
 }

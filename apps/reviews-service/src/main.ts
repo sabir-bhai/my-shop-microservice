@@ -6,12 +6,17 @@
 import express from "express";
 import * as path from "path";
 import cors from "cors";
+import dotenv from "dotenv";
+import cookieParser from "cookie-parser";
 import reviewRoutes from "./routes/review.route";
+
+dotenv.config({ path: path.resolve(__dirname, "../../../.env") });
 
 const app = express();
 
-app.use(cors());
+app.use(cors({ credentials: true, origin: true }));
 app.use(express.json());
+app.use(cookieParser());
 app.use("/assets", express.static(path.join(__dirname, "assets")));
 
 app.get("/", (req, res) => {

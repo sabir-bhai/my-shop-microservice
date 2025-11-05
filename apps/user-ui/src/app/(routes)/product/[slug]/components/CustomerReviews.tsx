@@ -20,7 +20,7 @@ const CustomerReviews: React.FC<CustomerReviewsProps> = ({
   id,
   refetch,
 }) => {
-  console.log("Stats", stats, "reviews", reviews.toString());
+  console.log("Stats", stats, "reviews", reviews);
   const [isReviewSidebarOpen, setIsReviewSidebarOpen] = useState(false);
   const { user, isLoading } = useUser(); // 👈 check authentication
   const router = useRouter();
@@ -52,11 +52,12 @@ const CustomerReviews: React.FC<CustomerReviewsProps> = ({
         <ReviewsOverview stats={stats} />
       </div>
 
-      {/* Individual Reviews */}
+      {/* Individual Reviews a*/}
       <div className="space-y-6">
-        {reviews.map((review) => (
-          <ReviewCard key={review.id} review={review} />
-        ))}
+        {reviews &&
+          reviews.map((review) => (
+            <ReviewCard key={review.id} review={review} />
+          ))}
       </div>
 
       {/* Sidebar (only renders if isReviewSidebarOpen is true) */}

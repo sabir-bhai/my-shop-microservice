@@ -140,6 +140,11 @@ const Page: React.FC = () => {
   // const handleBack = () => setStep((prev) => Math.max(prev - 1, 0));
 
   const processedToPay = async () => {
+    if (!selectedAddress) {
+      toast.error("Please select a delivery address");
+      return;
+    }
+
     const preparedItems = cartItems.map((item) => ({
       id: item.product.id,
       quantity: item.quantity,
@@ -152,10 +157,9 @@ const Page: React.FC = () => {
       subtotal: totalAmount,
       shipping: 50,
       total: totalAmount + 50,
-      amountPaise: Number((totalAmount + 50) * 100),
       itemsCount: cartItems.length,
       cartItems: preparedItems,
-      addressId: "68a2dd107a1a8c82b44cf942",
+      addressId: selectedAddress.id,
     };
 
     const sdkLoaded = await loadRazorpayScript();
@@ -165,43 +169,71 @@ const Page: React.FC = () => {
     }
 
     try {
-      // ✅ Ensure your API returns { key, order, orderId }
-      const { data } = await axiosInstance.post(
-        "/order/api/create-order",
-        orderData
+      // Step 1: Create order in Order Service
+      const { data: orderResponse } = await axiosInstance.post(
+        "/order/api/create",
+        orderData,
+        { withCredentials: true }
       );
 
-      const { key, order, orderId } = data; // order is the Razorpay order object
-      if (!key || !order?.id) {
-        console.error("Invalid order response", data);
-        toast.error("Could not start payment.");
+      if (!orderResponse.success || !orderResponse.data?.orderId) {
+        console.error("Invalid order response", orderResponse);
+        toast.error("Could not create order.");
         return;
       }
 
+      const orderId = orderResponse.data.orderId;
+      const orderTotal = orderResponse.data.total;
+
+      // Step 2: Create payment order in Payment Service
+      const { data: paymentResponse } = await axiosInstance.post(
+        "/payment/api/create-order",
+        {
+          orderId,
+          amount: orderTotal,
+          currency: "INR",
+        },
+        { withCredentials: true }
+      );
+
+      if (!paymentResponse.success || !paymentResponse.data) {
+        console.error("Invalid payment response", paymentResponse);
+        toast.error("Could not create payment order.");
+        return;
+      }
+
+      const {
+        razorpayOrderId,
+        razorpayKeyId,
+        paymentId,
+        amount: amountInPaise,
+        currency,
+      } = paymentResponse.data;
+
+      // Step 3: Initialize Razorpay
       const rzp = new (window as any).Razorpay({
-        key,
-        order_id: order.id,
+        key: razorpayKeyId,
+        order_id: razorpayOrderId,
+        amount: amountInPaise,
+        currency,
         name: "MyShop",
         description: "Order Payment",
-        // amount & currency come from the order; no need to pass them again
         handler: async (response: any) => {
           try {
             const verifyRes = await axiosInstance.post(
-              "/order/api/verify-payment",
+              "/payment/api/verify",
               {
                 razorpay_order_id: response.razorpay_order_id,
                 razorpay_payment_id: response.razorpay_payment_id,
                 razorpay_signature: response.razorpay_signature,
-                orderId,
+                paymentId,
               },
               { withCredentials: true }
             );
 
             if (verifyRes.data?.success) {
               toast.success("Payment successful! 🎉");
-              window.location.href = `/order-success?orderId=${
-                verifyRes.data.orderId ?? orderId
-              }`;
+              window.location.href = `/order-success?orderId=${orderId}`;
             } else {
               toast.error("Payment verification failed!");
             }
@@ -312,6 +344,7 @@ const Page: React.FC = () => {
                     onEditAddress={handleEditAddress}
                     selectedAddressId={selectedAddress?.id}
                     onSelectAddress={setSelectedAddress}
+                    showSelection={true}
                   />
                   <AddAddressModal
                     isOpen={isModalOpen}

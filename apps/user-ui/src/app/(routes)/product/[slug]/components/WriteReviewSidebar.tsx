@@ -92,45 +92,7 @@ const WriteReviewSidebar: React.FC<WriteReviewSidebarProps> = ({
     }
   };
 
-  //=========================== Submit review
-  // const onSubmit = async (data: ReviewFormData) => {
-  //   try {
-  //     // Convert images to base64
-  //     const base64Images = await Promise.all(
-  //       data.images.map(
-  //         (file) =>
-  //           new Promise<string>((resolve, reject) => {
-  //             const reader = new FileReader();
-  //             reader.onloadend = () => resolve(reader.result as string);
-  //             reader.onerror = reject;
-  //             reader.readAsDataURL(file);
-  //           })
-  //       )
-  //     );
-
-  //     const payload = {
-  //       rating: data.rating,
-  //       title: data.title,
-  //       comment: data.description,
-  //       images: base64Images,
-  //       isVerifiedPurchase: true, // optional: set from logic
-  //       recommendsProduct: data.wouldRecommend,
-  //     };
-
-  //     await axiosInstance.post(
-  //       `product/api/${productId}/reviews`,
-  //       payload
-  //     );
-  //     onReviewSubmitted?.();
-  //     alert("Review submitted successfully!");
-  //     reset();
-  //     setUploadedImages([]);
-  //     onClose();
-  //   } catch (error) {
-  //     console.error("Submit Review Error:", error);
-  //     alert("Failed to submit review. Please try again.");
-  //   }
-  // };
+ 
   const { mutate } = useMutation({
     mutationFn: async (data: ReviewFormData) => {
       // Convert images to Base64
@@ -156,7 +118,7 @@ const WriteReviewSidebar: React.FC<WriteReviewSidebarProps> = ({
       };
 
       return axiosInstance.post(
-        `product/api/${productId}/reviews`,
+        `reviews/api/products/${productId}/reviews`,
         payload
       );
     },

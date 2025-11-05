@@ -79,6 +79,12 @@ When refresh is successful:
 
 
 
+===============================================
+# From root directory
+npx prisma db push --schema=apps/reviews-service/prisma/schema.prisma
+
+# Or generate the Prisma client
+npx prisma generate --schema=apps/users-service/prisma/schema.prisma
 
 
 🔥🔥🔥🔥🔥🔥🔥🔥_______________BACKEND____________🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥

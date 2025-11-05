@@ -78,21 +78,11 @@ const AddAddressModal: React.FC<AddAddressModalProps> = ({
 
   const { mutate: saveAddress, isPending } = useMutation({
     mutationFn: async (body: any) => {
-      if (editAddress) {
-        const res = await axiosInstance.put(
-          `/api/update-address/${editAddress.id}`,
-          body,
-          {
-            withCredentials: true,
-          }
-        );
-        return res.data;
-      } else {
-        const res = await axiosInstance.post("/api/add-address", body, {
-          withCredentials: true,
-        });
-        return res.data;
-      }
+      // Note: Backend doesn't have update endpoint yet, only add
+      const res = await axiosInstance.post("/users/api/address", body, {
+        withCredentials: true,
+      });
+      return res.data;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["addresses"] });

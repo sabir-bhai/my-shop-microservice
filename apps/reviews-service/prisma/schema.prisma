@@ -19,6 +19,7 @@ model Review {
   recommendsProduct  Boolean       @default(false)
   productId          String        @db.ObjectId
   userId             String        @db.ObjectId
+  userName           String?       // User's name for display (optional for backward compatibility)
   images             ReviewImage[]
 }
 

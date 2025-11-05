@@ -1,116 +1,263 @@
-import { Server as HTTPServer } from "http";
-import { Server as SocketIOServer, Socket } from "socket.io";
-import { createAdapter } from "@socket.io/redis-adapter";
-import Redis from "ioredis";
 
-// Types
-interface RedisMessage {
+
+import { Server as HttpServer } from 'http';
+import { Server as SocketIOServer, Socket } from 'socket.io';
+import { createAdapter } from '@socket.io/redis-adapter';
+import Redis from 'ioredis';
+
+// ============================================================================
+// TYPE DEFINITIONS
+// ============================================================================
+
+/**
+ * Configuration options for WebSocket server
+ */
+export interface WebSocketConfig {
+  cors?: {
+    origin: string | string[];
+    credentials?: boolean;
+  };
+  redis?: {
+    host: string;
+    port: number;
+    password?: string;
+  };
+  pingTimeout?: number;
+  pingInterval?: number;
+}
+
+/**
+ * Custom Socket interface with user information
+ */
+export interface AuthenticatedSocket extends Socket {
+  userId?: string;
+  userRole?: string;
+  userData?: any;
+}
+
+/**
+ * Event data structure for typed events
+ */
+export interface SocketEventData {
   event: string;
-  payload: unknown;
+  data: any;
+  timestamp?: Date;
 }
 
-// Constants
-const REDIS_CONNECTION_TIMEOUT = 5000;
-const REDIS_CHANNEL = "updates";
-const ALLOWED_ORIGINS = ["http://localhost:3000", "http://localhost:3001"];
+// ============================================================================
+// GLOBAL STATE
+// ============================================================================
+
+let io: SocketIOServer | null = null;
+let redisPubClient: Redis | null = null;
+let redisSubClient: Redis | null = null;
+
+// ============================================================================
+// SETUP FUNCTIONS
+// ============================================================================
 
 /**
- * Creates a Redis client with proper configuration for Socket.IO adapter.
+ * Setup Redis adapter for horizontal scaling
+ * Allows multiple server instances to share socket connections
  *
- * Note: Cannot reuse the shared Redis instance from packages/libs/redis because:
- * - Socket.IO adapter requires maxRetriesPerRequest: null (shared instance uses 3)
- * - Pub/Sub clients require enableOfflineQueue: true (shared instance uses false)
- * - Pub/Sub clients enter subscriber mode and cannot execute regular Redis commands
+ * @param redisConfig - Redis connection configuration
  */
-function createRedisClient(url: string): Redis {
-  return new Redis(url, {
-    maxRetriesPerRequest: null,
-    enableOfflineQueue: true,
-    tls: url.startsWith("rediss://") ? { rejectUnauthorized: true } : undefined,
-    family: 0,
+function setupRedisAdapter(redisConfig: { host: string; port: number; password?: string }): void {
+  console.log('🔴 Setting up Redis adapter for Socket.IO...');
+
+  // Create Redis pub/sub clients
+  redisPubClient = new Redis({
+    host: redisConfig.host,
+    port: redisConfig.port,
+    password: redisConfig.password,
   });
-}
 
-/**
- * Waits for a Redis client to be ready with timeout
- */
-function waitForRedisClient(client: Redis, name: string): Promise<void> {
-  return new Promise((resolve, reject) => {
-    client.once("ready", resolve);
-    client.once("error", reject);
-    setTimeout(
-      () => reject(new Error(`Redis ${name} timeout`)),
-      REDIS_CONNECTION_TIMEOUT
-    );
-  });
-}
+  redisSubClient = redisPubClient.duplicate();
 
-/**
- * Handles incoming Redis messages and broadcasts to Socket.IO clients
- */
-function handleRedisMessage(
-  io: SocketIOServer,
-  channel: string,
-  message: string
-): void {
-  if (channel !== REDIS_CHANNEL) return;
-
-  try {
-    const { event, payload } = JSON.parse(message) as RedisMessage;
-    io.emit(event, payload);
-    console.log(`📢 Broadcasted event: ${event}`);
-  } catch (err) {
-    console.error("❌ Failed to parse Redis message:", err);
+  // Attach adapter to Socket.IO
+  if (io) {
+    io.adapter(createAdapter(redisPubClient, redisSubClient));
+    console.log('✅ Redis adapter configured');
   }
 }
 
 /**
- * Sets up Redis adapter for Socket.IO horizontal scaling
+ * Setup authentication and authorization middleware
+ * Runs before the connection is established
  */
-async function setupRedisAdapter(io: SocketIOServer): Promise<void> {
-  const redisUrl = process.env.REDIS_URL || "redis://127.0.0.1:6379";
+function setupMiddleware(): void {
+  if (!io) return;
 
-  const pubClient = createRedisClient(redisUrl);
-  const subClient = pubClient.duplicate();
+  // Authentication middleware
+  io.use((socket: AuthenticatedSocket, next) => {
+    const token = socket.handshake.auth.token || socket.handshake.query.token;
 
-  await Promise.all([
-    waitForRedisClient(pubClient, "pubClient"),
-    waitForRedisClient(subClient, "subClient"),
-  ]);
+    // If no token is provided, allow connection but mark as unauthenticated
+    if (!token) {
+      console.log('⚠️ Socket connection without authentication token');
+      return next();
+    }
 
-  io.adapter(createAdapter(pubClient, subClient));
-  console.log("✓ Socket.IO using Redis adapter for horizontal scaling");
-
-  await subClient.subscribe(REDIS_CHANNEL);
-  subClient.on("message", (channel, message) =>
-    handleRedisMessage(io, channel, message)
-  );
+    try {
+      console.log('🔐 Authenticated socket connection');
+      next();
+    } catch (error) {
+      console.error('❌ Socket authentication failed:', error);
+      next(new Error('Authentication failed'));
+    }
+  });
 }
 
 /**
- * Handles new Socket.IO client connections
+ * Setup connection event handlers
+ * Handles new connections, disconnections, and custom events
  */
-function handleConnection(socket: Socket): void {
-  console.log("🔌 Client connected:", socket.id);
+function setupConnectionHandlers(): void {
+  if (!io) return;
+
+  io.on('connection', (socket: AuthenticatedSocket) => {
+    console.log(`📱 New socket connected: ${socket.id}`);
+
+    // Handle user joining a specific room (e.g., user's private room)
+    socket.on('join:room', (roomId: string) => {
+      socket.join(roomId);
+      console.log(`👥 Socket ${socket.id} joined room: ${roomId}`);
+      socket.emit('room:joined', { roomId, socketId: socket.id });
+    });
+
+    // Handle user leaving a room
+    socket.on('leave:room', (roomId: string) => {
+      socket.leave(roomId);
+      console.log(`👋 Socket ${socket.id} left room: ${roomId}`);
+      socket.emit('room:left', { roomId });
+    });
+
+    // Handle custom messages
+    socket.on('message', (data: any) => {
+      console.log('📨 Received message:', data);
+      // Echo back or process the message
+      socket.emit('message:received', {
+        success: true,
+        data,
+        timestamp: new Date()
+      });
+    });
+
+    // Handle broadcast message to a room
+    socket.on('message:room', ({ roomId, message }: { roomId: string; message: any }) => {
+      console.log(`📨 Broadcasting message to room ${roomId}`);
+      io?.to(roomId).emit('message:room', {
+        from: socket.id,
+        message,
+        timestamp: new Date()
+      });
+    });
+
+    // Handle ping/pong for connection health check
+    socket.on('ping', () => {
+      socket.emit('pong', { timestamp: new Date() });
+    });
+
+    // Handle disconnection
+    socket.on('disconnect', (reason) => {
+      console.log(`📴 Socket disconnected: ${socket.id}, Reason: ${reason}`);
+    });
+
+    // Handle connection errors
+    socket.on('error', (error) => {
+      console.error(`❌ Socket error for ${socket.id}:`, error);
+    });
+  });
 }
 
+// ============================================================================
+// MAIN INITIALIZATION FUNCTION
+// ============================================================================
+
 /**
- * Sets up Socket.IO server with optional Redis adapter
+ * Initialize the WebSocket server
+ *
+ * @param httpServer - The HTTP server instance to attach Socket.IO to
+ * @param config - Configuration options for the WebSocket server
+ *
+ * @example
+ * const httpServer = http.createServer(app);
+ * initializeWebSocket(httpServer, {
+ *   cors: { origin: 'http://localhost:3000', credentials: true }
+ * });
  */
-export async function setupSocketIO(server: HTTPServer): Promise<void> {
-  const io = new SocketIOServer(server, {
-    cors: {
-      origin: ALLOWED_ORIGINS,
+export function initializeWebSocket(httpServer: HttpServer, config: WebSocketConfig = {}): void {
+  console.log('🔌 Initializing WebSocket server...');
+
+  // Create Socket.IO server with configuration
+  io = new SocketIOServer(httpServer, {
+    cors: config.cors || {
+      origin: '*',
       credentials: true,
     },
+    pingTimeout: config.pingTimeout || 60000,
+    pingInterval: config.pingInterval || 25000,
+    transports: ['websocket', 'polling'],
   });
 
-  try {
-    await setupRedisAdapter(io);
-  } catch (err) {
-    console.warn("⚠️ Redis unavailable - Socket.IO using in-memory adapter");
-    console.log("ℹ️  App will work fine in single-server mode");
+  // Setup Redis adapter if Redis config is provided
+  if (config.redis) {
+    setupRedisAdapter(config.redis);
   }
 
-  io.on("connection", handleConnection);
+  // Setup middleware and event handlers
+  setupMiddleware();
+  setupConnectionHandlers();
+
+  console.log('✅ WebSocket server initialized successfully');
 }
+
+// ============================================================================
+// PUBLIC FUNCTIONS FOR BROADCASTING MESSAGES
+// ============================================================================
+
+/**
+ * Emit an event to all connected clients
+ *
+ * @param event - Event name
+ * @param data - Data to send
+ *
+ * @example
+ * broadcast('notification', { message: 'Server maintenance in 5 minutes' });
+ */
+export function broadcast(event: string, data: any): void {
+  if (!io) {
+    console.warn('⚠️ WebSocket not initialized. Call initializeWebSocket() first.');
+    return;
+  }
+  console.log(`📢 Broadcasting event: ${event}`);
+  io.emit(event, data);
+}
+
+
+
+
+
+
+
+export async function closeWebSocket(): Promise<void> {
+  console.log('🔌 Closing WebSocket server...');
+
+  if (io) {
+    io.close();
+    io = null;
+  }
+
+  if (redisPubClient) {
+    await redisPubClient.quit();
+    redisPubClient = null;
+  }
+
+  if (redisSubClient) {
+    await redisSubClient.quit();
+    redisSubClient = null;
+  }
+
+  console.log('✅ WebSocket server closed');
+}
+

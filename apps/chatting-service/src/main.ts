@@ -2,10 +2,14 @@ import express from "express";
 import { createServer } from "http";
 import { Server } from "socket.io";
 import { createAdapter } from "@socket.io/redis-adapter";
-import redis from "../../../packages/libs/redis"; // your ioredis instance
+import dotenv from "dotenv";
+import path from "path";
+
 import chatRoutes from "./routes/chat.route";
 import { prisma } from "../../../packages/libs/prisma";
-import cors from "cors";
+
+dotenv.config({ path: path.resolve(__dirname, "../../../.env") });
+
 const app = express();
 
 app.use(express.json());

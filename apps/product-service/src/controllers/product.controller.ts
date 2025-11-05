@@ -1,7 +1,9 @@
 import { Request, Response } from "express";
-import { prisma } from "../../../../packages/libs/prisma";
+import { PrismaClient } from ".prisma/product-client";
 import { imagekit } from "../../../../packages/libs/imagekit";
 import { publishEvent } from "../../../../packages/libs/events/publisher";
+
+const prisma = new PrismaClient();
 // Create Product
 export const createProduct = async (req: Request, res: Response) => {
   try {

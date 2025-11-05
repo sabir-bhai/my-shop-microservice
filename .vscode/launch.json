@@ -2,33 +2,81 @@
   "version": "0.2.0",
   "compounds": [
     {
-      "name": "Debug All Services",
+      "name": "🚀 Debug All Services",
       "configurations": [
-        "Debug Gateway",
+        "Debug API Gateway",
         "Debug Auth Service",
-        "Debug Cart Service",
+        "Debug Users Service",
         "Debug Product Service",
-        "Debug Chat Service",
-        "Debug Order Service"
+        "Debug Cart Service",
+        "Debug Order Service",
+        "Debug Payment Service",
+        "Debug Reviews Service",
+        "Debug Notification Service",
+        "Debug Chat Service"
       ],
       "stopAll": true,
       "presentation": {
         "hidden": false,
-        "group": "microservices",
+        "group": "All Services",
         "order": 1
       }
     },
     {
-      "name": "Debug Core Services",
+      "name": "🛒 Debug E-commerce Services",
       "configurations": [
-        "Debug Gateway",
+        "Debug API Gateway",
         "Debug Auth Service",
-        "Debug Product Service"
+        "Debug Users Service",
+        "Debug Product Service",
+        "Debug Cart Service",
+        "Debug Order Service",
+        "Debug Payment Service"
       ],
       "stopAll": true,
       "presentation": {
-        "group": "microservices",
+        "group": "E-commerce",
         "order": 2
+      }
+    },
+    {
+      "name": "💳 Debug Payment Flow",
+      "configurations": [
+        "Debug API Gateway",
+        "Debug Order Service",
+        "Debug Payment Service",
+        "Debug Notification Service"
+      ],
+      "stopAll": true,
+      "presentation": {
+        "group": "Payment",
+        "order": 3
+      }
+    },
+    {
+      "name": "📧 Debug Notification Flow",
+      "configurations": [
+        "Debug Notification Service",
+        "Debug Payment Service",
+        "Debug Order Service"
+      ],
+      "stopAll": true,
+      "presentation": {
+        "group": "Notifications",
+        "order": 4
+      }
+    },
+    {
+      "name": "🔐 Debug Auth & Users",
+      "configurations": [
+        "Debug API Gateway",
+        "Debug Auth Service",
+        "Debug Users Service"
+      ],
+      "stopAll": true,
+      "presentation": {
+        "group": "Authentication",
+        "order": 5
       }
     }
   ],
@@ -36,180 +84,72 @@
     {
       "type": "node",
       "request": "launch",
-      "name": "Debug Gateway",
-      "runtimeExecutable": "nx",
+      "name": "Debug API Gateway",
+      "runtimeExecutable": "npx",
       "runtimeArgs": [
+        "nx",
         "serve",
-        "@my-shop-backend/api-gateway",
-        "--inspect"
+        "api-gateway"
       ],
+      "env": {
+        "NODE_OPTIONS": "--inspect=9229",
+        "NODE_ENV": "development"
+      },
       "console": "integratedTerminal",
+      "internalConsoleOptions": "neverOpen",
       "restart": true,
-      "protocol": "inspector",
-      "port": 9229,
-      "localRoot": "${workspaceFolder}",
-      "remoteRoot": "${workspaceFolder}",
       "skipFiles": [
         "<node_internals>/**"
       ],
-      "env": {
-        "NODE_ENV": "development"
-      }
+      "sourceMaps": true,
+      "outFiles": [
+        "${workspaceFolder}/apps/api-gateway/dist/**/*.(m|c|)js",
+        "!**/node_modules/**"
+      ]
     },
     {
       "type": "node",
       "request": "launch",
       "name": "Debug Auth Service",
-      "runtimeExecutable": "nx",
-      "runtimeArgs": [
-        "serve",
-        "@my-shop-backend/auth-service",
-        "--inspect"
-      ],
-      "console": "integratedTerminal",
-      "restart": true,
-      "protocol": "inspector",
-      "port": 9230,
-      "localRoot": "${workspaceFolder}",
-      "remoteRoot": "${workspaceFolder}",
-      "skipFiles": [
-        "<node_internals>/**"
-      ],
-      "env": {
-        "NODE_ENV": "development"
-      }
-    },
-    {
-      "type": "node",
-      "request": "launch",
-      "name": "Debug Cart Service",
-      "runtimeExecutable": "nx",
-      "runtimeArgs": [
-        "serve",
-        "@my-shop-backend/add-to-cart-service",
-        "--inspect"
-      ],
-      "console": "integratedTerminal",
-      "restart": true,
-      "protocol": "inspector",
-      "port": 9231,
-      "localRoot": "${workspaceFolder}",
-      "remoteRoot": "${workspaceFolder}",
-      "skipFiles": [
-        "<node_internals>/**"
-      ],
-      "env": {
-        "NODE_ENV": "development"
-      }
-    },
-    {
-      "type": "node",
-      "request": "launch",
-      "name": "Debug Chat Service",
-      "runtimeExecutable": "nx",
-      "runtimeArgs": [
-        "serve",
-        "@my-shop-backend/chatting-service",
-        "--inspect"
-      ],
-      "console": "integratedTerminal",
-      "restart": true,
-      "protocol": "inspector",
-      "port": 9232,
-      "localRoot": "${workspaceFolder}",
-      "remoteRoot": "${workspaceFolder}",
-      "skipFiles": [
-        "<node_internals>/**"
-      ],
-      "env": {
-        "NODE_ENV": "development"
-      }
-    },
-    {
-      "type": "node",
-      "request": "launch",
-      "name": "Debug Product Service",
-      "runtimeExecutable": "nx",
-      "runtimeArgs": [
-        "serve",
-        "@my-shop-backend/product-service",
-        "--inspect"
-      ],
-      "console": "integratedTerminal",
-      "restart": true,
-      "protocol": "inspector",
-      "port": 9233,
-      "localRoot": "${workspaceFolder}",
-      "remoteRoot": "${workspaceFolder}",
-      "skipFiles": [
-        "<node_internals>/**"
-      ],
-      "env": {
-        "NODE_ENV": "development"
-      }
-    },
-    {
-      "type": "node",
-      "request": "launch",
-      "name": "Debug Order Service",
-      "runtimeExecutable": "nx",
-      "runtimeArgs": [
-        "serve",
-        "@my-shop-backend/order-service",
-        "--inspect"
-      ],
-      "console": "integratedTerminal",
-      "restart": true,
-      "protocol": "inspector",
-      "port": 9233,
-      "localRoot": "${workspaceFolder}",
-      "remoteRoot": "${workspaceFolder}",
-      "skipFiles": [
-        "<node_internals>/**"
-      ],
-      "env": {
-        "NODE_ENV": "development"
-      }
-    },
-    {
-      "type": "node",
-      "request": "attach",
-      "name": "Attach to Gateway",
-      "port": 9229,
-      "restart": true,
-      "localRoot": "${workspaceFolder}",
-      "remoteRoot": "${workspaceFolder}",
-      "skipFiles": [
-        "<node_internals>/**"
-      ]
-    },
-    {
-      "type": "node",
-      "request": "attach",
-      "name": "Attach to Auth",
-      "port": 9230,
-      "restart": true,
-      "localRoot": "${workspaceFolder}",
-      "remoteRoot": "${workspaceFolder}",
-      "skipFiles": [
-        "<node_internals>/**"
-      ]
-    },
-    {
-      "type": "node",
-      "request": "launch",
-      "name": "Debug @my-shop-backend/users-service with Nx",
       "runtimeExecutable": "npx",
       "runtimeArgs": [
         "nx",
         "serve",
-        "@my-shop-backend/users-service"
+        "auth-service"
       ],
       "env": {
-        "NODE_OPTIONS": "--inspect=9229"
+        "NODE_OPTIONS": "--inspect=9230",
+        "NODE_ENV": "development"
       },
       "console": "integratedTerminal",
       "internalConsoleOptions": "neverOpen",
+      "restart": true,
+      "skipFiles": [
+        "<node_internals>/**"
+      ],
+      "sourceMaps": true,
+      "outFiles": [
+        "${workspaceFolder}/apps/auth-service/dist/**/*.(m|c|)js",
+        "!**/node_modules/**"
+      ]
+    },
+    {
+      "type": "node",
+      "request": "launch",
+      "name": "Debug Users Service",
+      "runtimeExecutable": "npx",
+      "runtimeArgs": [
+        "nx",
+        "serve",
+        "users-service"
+      ],
+      "env": {
+        "NODE_OPTIONS": "--inspect=9231",
+        "NODE_ENV": "development"
+      },
+      "console": "integratedTerminal",
+      "internalConsoleOptions": "neverOpen",
+      "restart": true,
       "skipFiles": [
         "<node_internals>/**"
       ],
@@ -222,42 +162,98 @@
     {
       "type": "node",
       "request": "launch",
-      "name": "Debug @my-shop-backend/notification-service with Nx",
+      "name": "Debug Product Service",
       "runtimeExecutable": "npx",
       "runtimeArgs": [
         "nx",
         "serve",
-        "@my-shop-backend/notification-service"
+        "product-service"
       ],
       "env": {
-        "NODE_OPTIONS": "--inspect=9230"
+        "NODE_OPTIONS": "--inspect=9232",
+        "NODE_ENV": "development"
       },
       "console": "integratedTerminal",
       "internalConsoleOptions": "neverOpen",
+      "restart": true,
       "skipFiles": [
         "<node_internals>/**"
       ],
       "sourceMaps": true,
       "outFiles": [
-        "${workspaceFolder}/apps/notification-service/dist/**/*.(m|c|)js",
+        "${workspaceFolder}/apps/product-service/dist/**/*.(m|c|)js",
         "!**/node_modules/**"
       ]
     },
     {
       "type": "node",
       "request": "launch",
-      "name": "Debug @my-shop-backend/payments-service with Nx",
+      "name": "Debug Cart Service",
       "runtimeExecutable": "npx",
       "runtimeArgs": [
         "nx",
         "serve",
-        "@my-shop-backend/payments-service"
+        "add-to-cart-service"
       ],
       "env": {
-        "NODE_OPTIONS": "--inspect=9231"
+        "NODE_OPTIONS": "--inspect=9233",
+        "NODE_ENV": "development"
       },
       "console": "integratedTerminal",
       "internalConsoleOptions": "neverOpen",
+      "restart": true,
+      "skipFiles": [
+        "<node_internals>/**"
+      ],
+      "sourceMaps": true,
+      "outFiles": [
+        "${workspaceFolder}/apps/add-to-cart-service/dist/**/*.(m|c|)js",
+        "!**/node_modules/**"
+      ]
+    },
+    {
+      "type": "node",
+      "request": "launch",
+      "name": "Debug Order Service",
+      "runtimeExecutable": "npx",
+      "runtimeArgs": [
+        "nx",
+        "serve",
+        "order-service"
+      ],
+      "env": {
+        "NODE_OPTIONS": "--inspect=9234",
+        "NODE_ENV": "development"
+      },
+      "console": "integratedTerminal",
+      "internalConsoleOptions": "neverOpen",
+      "restart": true,
+      "skipFiles": [
+        "<node_internals>/**"
+      ],
+      "sourceMaps": true,
+      "outFiles": [
+        "${workspaceFolder}/apps/order-service/dist/**/*.(m|c|)js",
+        "!**/node_modules/**"
+      ]
+    },
+    {
+      "type": "node",
+      "request": "launch",
+      "name": "Debug Payment Service",
+      "runtimeExecutable": "npx",
+      "runtimeArgs": [
+        "nx",
+        "serve",
+        "payments-service"
+      ],
+      "env": {
+        "NODE_OPTIONS": "--inspect=9235",
+        "NODE_ENV": "development"
+      },
+      "console": "integratedTerminal",
+      "internalConsoleOptions": "neverOpen",
+      "restart": true,
       "skipFiles": [
         "<node_internals>/**"
       ],
@@ -270,18 +266,20 @@
     {
       "type": "node",
       "request": "launch",
-      "name": "Debug @my-shop-backend/reviews-service with Nx",
+      "name": "Debug Reviews Service",
       "runtimeExecutable": "npx",
       "runtimeArgs": [
         "nx",
         "serve",
-        "@my-shop-backend/reviews-service"
+        "reviews-service"
       ],
       "env": {
-        "NODE_OPTIONS": "--inspect=9232"
+        "NODE_OPTIONS": "--inspect=9236",
+        "NODE_ENV": "development"
       },
       "console": "integratedTerminal",
       "internalConsoleOptions": "neverOpen",
+      "restart": true,
       "skipFiles": [
         "<node_internals>/**"
       ],
@@ -289,6 +287,178 @@
       "outFiles": [
         "${workspaceFolder}/apps/reviews-service/dist/**/*.(m|c|)js",
         "!**/node_modules/**"
+      ]
+    },
+    {
+      "type": "node",
+      "request": "launch",
+      "name": "Debug Notification Service",
+      "runtimeExecutable": "npx",
+      "runtimeArgs": [
+        "nx",
+        "serve",
+        "notification-service"
+      ],
+      "env": {
+        "NODE_OPTIONS": "--inspect=9237",
+        "NODE_ENV": "development"
+      },
+      "console": "integratedTerminal",
+      "internalConsoleOptions": "neverOpen",
+      "restart": true,
+      "skipFiles": [
+        "<node_internals>/**"
+      ],
+      "sourceMaps": true,
+      "outFiles": [
+        "${workspaceFolder}/apps/notification-service/dist/**/*.(m|c|)js",
+        "!**/node_modules/**"
+      ]
+    },
+    {
+      "type": "node",
+      "request": "launch",
+      "name": "Debug Chat Service",
+      "runtimeExecutable": "npx",
+      "runtimeArgs": [
+        "nx",
+        "serve",
+        "chatting-service"
+      ],
+      "env": {
+        "NODE_OPTIONS": "--inspect=9238",
+        "NODE_ENV": "development"
+      },
+      "console": "integratedTerminal",
+      "internalConsoleOptions": "neverOpen",
+      "restart": true,
+      "skipFiles": [
+        "<node_internals>/**"
+      ],
+      "sourceMaps": true,
+      "outFiles": [
+        "${workspaceFolder}/apps/chatting-service/dist/**/*.(m|c|)js",
+        "!**/node_modules/**"
+      ]
+    },
+    {
+      "type": "node",
+      "request": "attach",
+      "name": "Attach to API Gateway",
+      "port": 9229,
+      "restart": true,
+      "localRoot": "${workspaceFolder}",
+      "remoteRoot": "${workspaceFolder}",
+      "skipFiles": [
+        "<node_internals>/**"
+      ]
+    },
+    {
+      "type": "node",
+      "request": "attach",
+      "name": "Attach to Auth Service",
+      "port": 9230,
+      "restart": true,
+      "localRoot": "${workspaceFolder}",
+      "remoteRoot": "${workspaceFolder}",
+      "skipFiles": [
+        "<node_internals>/**"
+      ]
+    },
+    {
+      "type": "node",
+      "request": "attach",
+      "name": "Attach to Users Service",
+      "port": 9231,
+      "restart": true,
+      "localRoot": "${workspaceFolder}",
+      "remoteRoot": "${workspaceFolder}",
+      "skipFiles": [
+        "<node_internals>/**"
+      ]
+    },
+    {
+      "type": "node",
+      "request": "attach",
+      "name": "Attach to Product Service",
+      "port": 9232,
+      "restart": true,
+      "localRoot": "${workspaceFolder}",
+      "remoteRoot": "${workspaceFolder}",
+      "skipFiles": [
+        "<node_internals>/**"
+      ]
+    },
+    {
+      "type": "node",
+      "request": "attach",
+      "name": "Attach to Cart Service",
+      "port": 9233,
+      "restart": true,
+      "localRoot": "${workspaceFolder}",
+      "remoteRoot": "${workspaceFolder}",
+      "skipFiles": [
+        "<node_internals>/**"
+      ]
+    },
+    {
+      "type": "node",
+      "request": "attach",
+      "name": "Attach to Order Service",
+      "port": 9234,
+      "restart": true,
+      "localRoot": "${workspaceFolder}",
+      "remoteRoot": "${workspaceFolder}",
+      "skipFiles": [
+        "<node_internals>/**"
+      ]
+    },
+    {
+      "type": "node",
+      "request": "attach",
+      "name": "Attach to Payment Service",
+      "port": 9235,
+      "restart": true,
+      "localRoot": "${workspaceFolder}",
+      "remoteRoot": "${workspaceFolder}",
+      "skipFiles": [
+        "<node_internals>/**"
+      ]
+    },
+    {
+      "type": "node",
+      "request": "attach",
+      "name": "Attach to Reviews Service",
+      "port": 9236,
+      "restart": true,
+      "localRoot": "${workspaceFolder}",
+      "remoteRoot": "${workspaceFolder}",
+      "skipFiles": [
+        "<node_internals>/**"
+      ]
+    },
+    {
+      "type": "node",
+      "request": "attach",
+      "name": "Attach to Notification Service",
+      "port": 9237,
+      "restart": true,
+      "localRoot": "${workspaceFolder}",
+      "remoteRoot": "${workspaceFolder}",
+      "skipFiles": [
+        "<node_internals>/**"
+      ]
+    },
+    {
+      "type": "node",
+      "request": "attach",
+      "name": "Attach to Chat Service",
+      "port": 9238,
+      "restart": true,
+      "localRoot": "${workspaceFolder}",
+      "remoteRoot": "${workspaceFolder}",
+      "skipFiles": [
+        "<node_internals>/**"
       ]
     }
   ]

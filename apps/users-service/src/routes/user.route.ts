@@ -16,6 +16,9 @@ import { exportUsersPDF } from "../assets/pdf-export.controller";
 
 const router: Router = express.Router();
 
+
+
+router.get("/all", getAllUser);
 // 👤 User Profile Management
 router.get("/profile", isAuthenticated, getUser);
 router.put("/profile", isAuthenticated, updateUserProfile);
@@ -26,7 +29,7 @@ router.post("/address", isAuthenticated, addAddress);
 router.get("/address", isAuthenticated, getAddresses);
 
 // 👥 Admin: User Management
-router.get("/all", getAllUser);
+
 router.patch("/status/:id", updateUserStatus);
 router.delete("/:id", isAdminAuthenticated, softDeleteUser);
 

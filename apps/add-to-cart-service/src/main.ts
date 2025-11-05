@@ -1,7 +1,11 @@
 import express from "express";
 import cookieParser from "cookie-parser";
 import cors from "cors"; // ✅ make sure this is imported
+import dotenv from "dotenv";
+import path from "path";
 import router from "./routes/addtocart.routes"; // Your route file
+
+dotenv.config({ path: path.resolve(__dirname, "../../../.env") });
 
 const app = express();
 

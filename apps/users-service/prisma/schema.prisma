@@ -9,16 +9,21 @@ datasource db {
 }
 
 model User {
-  id        String    @id @default(auto()) @map("_id") @db.ObjectId
-  name      String
-  email     String    @unique
-  phone     String?
-  avatar    String?
-  role      String    @default("user")
-  status    String    @default("active")
-  createdAt DateTime  @default(now())
-  updatedAt DateTime? @default(now())
-  addresses Address[]
+  id         String    @id @default(auto()) @map("_id") @db.ObjectId
+  name       String
+  email      String    @unique
+  phone      String?
+  avatar     String?
+  password   String?
+  role       String    @default("user")
+  status     String    @default("active")
+  isVerified Boolean   @default(false)
+  lastLogin  DateTime?
+  createdAt  DateTime  @default(now())
+  updatedAt  DateTime? @default(now())
+  addresses  Address[]
+
+  @@map("User")
 }
 
 model Address {

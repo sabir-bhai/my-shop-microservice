@@ -1,10 +1,13 @@
 import { NextFunction, Request, Response } from "express";
 import bcrypt from "bcryptjs";
-import { prisma } from "../../../../packages/libs/prisma";
+import { PrismaClient } from ".prisma/users-client";
 import redis from "../../../../packages/libs/redis";
+
+const prisma = new PrismaClient();
 import {
   AuthError,
   ValidationError,
+  DatabaseError,
 } from "../../../../packages/error-handler";
 import { imagekit } from "../../../../packages/libs/imagekit";
 
@@ -84,6 +87,12 @@ export const getAllUser = async (
   next: NextFunction
 ) => {
   try {
+    console.log("🔍 [getAllUser] REQUEST RECEIVED");
+    console.log("🔍 [getAllUser] URL:", req.originalUrl);
+    console.log("🔍 [getAllUser] Method:", req.method);
+    console.log("🔍 [getAllUser] Query:", req.query);
+    console.log("🔍 [getAllUser] Headers:", req.headers);
+
     const { status, page = "1", limit = "10" } = req.query;
 
     const pageNum = Number(page) || 1;
@@ -103,6 +112,9 @@ export const getAllUser = async (
       orderBy: { createdAt: "desc" },
     });
 
+    console.log("🔍 [getAllUser] Query successful. Total:", total, "Users:", users.length);
+    console.log("🔍 [getAllUser] Sending 200 response");
+
     return res.status(200).json({
       status: "success",
       page: pageNum,
@@ -111,8 +123,8 @@ export const getAllUser = async (
       users,
     });
   } catch (err) {
-    console.log(err);
-    return next(new AuthError("Failed to fetch users"));
+    console.error("🔍 [getAllUser] Error:", err);
+    return next(new DatabaseError("Failed to fetch users"));
   }
 };
 

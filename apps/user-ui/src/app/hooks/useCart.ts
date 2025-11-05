@@ -8,21 +8,32 @@ import { setCartItems } from "../store/slices/cartSlice";
 
 interface CartItem {
   id: string;
+  productId: string;
   quantity: number;
+  createdAt: string;
+  updatedAt: string;
   product: {
     id: string;
     title: string;
-    price: number;
-    images: string[];
-    slug: string;
+    regularPrice: number;
+    salePrice?: number;
+    images: Array<{ url: string }>;
+    slug?: string;
     description?: string;
-  };
+    category?: string;
+    stockQuantity?: number;
+  } | null;
 }
 
 interface CartResponse {
   success: boolean;
   data: {
-    items: CartItem[];
+    cartItems: CartItem[];
+    summary: {
+      totalItems: number;
+      totalAmount: number;
+      itemCount: number;
+    };
   };
 }
 
@@ -31,7 +42,7 @@ const fetchCart = async (): Promise<CartItem[]> => {
     const response = await axiosInstance.get<CartResponse>(
       "/cart/api/get-all-cart"
     );
-    return response.data.data.items || [];
+    return response.data.data.cartItems || [];
   } catch (error: any) {
     // If user is not authenticated, return empty cart
     if (error.response?.status === 401) {

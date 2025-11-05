@@ -10,7 +10,10 @@ import axiosInstance from "../../../utils/axiosinstance";
 import { toast } from "sonner";
 import { Heart, Eye, ShoppingBag, X } from "lucide-react";
 import useUser from "../../../hooks/useUser";
-import { addToCartLocalStorage } from "../../../store/slices/cartSlice";
+import {
+  addToCartLocalStorage,
+  removeFromCartLocalStorage,
+} from "../../../store/slices/cartSlice";
 export default function ProductCard({
   id,
   images,
@@ -33,6 +36,7 @@ export default function ProductCard({
   const isInCart = useAppSelector((state: RootState) =>
     state.cart.items.some((item) => item.id === id)
   );
+  console.log("isIncart", isInCart);
 
   // Load wishlist state from localStorage on component mount
   useEffect(() => {
@@ -69,13 +73,13 @@ export default function ProductCard({
   // ---- Mutation to remove item from cart ----
   const { mutate: removeFromCartApi, isPending: isRemoving } = useMutation({
     mutationFn: async () => {
-      const res = await axiosInstance.delete("cart/api/remove-to-cart", {
+      const res = await axiosInstance.delete("/cart/api/remove-to-cart", {
         data: { productId: id },
       });
       return res.data;
     },
     onSuccess: (data) => {
-      dispatch(removeFromCart(id));
+      dispatch(removeFromCartLocalStorage(id));
       queryClient.invalidateQueries({ queryKey: ["cart"] });
       toast.success(data?.message || "Product removed from cart successfully", {
         icon: "🗑️",

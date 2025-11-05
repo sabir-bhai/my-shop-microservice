@@ -13,6 +13,8 @@ enum OrderStatus {
   ATTEMPTED
   PAID
   CAPTURED
+  SHIPPED
+  DELIVERED
   FAILED
 }
 

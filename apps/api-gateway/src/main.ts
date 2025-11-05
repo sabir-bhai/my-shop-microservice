@@ -5,11 +5,12 @@ import rateLimit, { RateLimitRequestHandler } from "express-rate-limit";
 import dotenv from "dotenv";
 import cookieParser from "cookie-parser";
 import morgan from "morgan";
-import { setupSocketIO } from "../../../packages/libs/websocket";
+import path from "path";
+import { initializeWebSocket } from "../../../packages/libs/websocket";
 import http, { Server } from "http";
 import { errorHandler } from "../../../packages/error-handler/error-middleware";
 
-dotenv.config();
+dotenv.config({ path: path.resolve(__dirname, "../../../.env") });
 
 // Type definitions
 interface CustomError extends Error {
@@ -49,9 +50,14 @@ const getAllowedOrigins = (): string[] => {
   const baseOrigins: string[] = [
     "http://localhost:3000",
     "http://localhost:3001",
+    "http://localhost:3002",
     "http://localhost:5173", // Vite default
+    "http://localhost:5174",
     "http://localhost:8080",
     "http://localhost:8081",
+    "http://127.0.0.1:3000",
+    "http://127.0.0.1:3001",
+    "http://127.0.0.1:5173",
   ];
 
   // Add production origins from environment
@@ -66,6 +72,8 @@ const getAllowedOrigins = (): string[] => {
 };
 
 // CORS setup - More secure approach
+const isDevelopment = process.env.NODE_ENV !== "production";
+
 const corsOptions: CorsOptions = {
   origin: (
     origin: string | undefined,
@@ -77,13 +85,24 @@ const corsOptions: CorsOptions = {
     const allowedOrigins: string[] = getAllowedOrigins();
 
     // Allow requests with no origin (mobile apps, Postman, etc.)
-    if (!origin) return callback(null, true);
+    if (!origin) {
+
+      return callback(null, true);
+    }
+
+    // In development, allow all localhost origins
+    if (isDevelopment && (origin.includes("localhost") || origin.includes("127.0.0.1"))) {
+
+      return callback(null, true);
+    }
 
     // Check if origin is allowed
     if (allowedOrigins.includes(origin)) {
+
       callback(null, true);
     } else {
-      console.warn(`CORS blocked origin: ${origin}`);
+      console.warn(`❌ CORS blocked origin: ${origin}`);
+      console.warn(`Allowed origins:`, allowedOrigins);
       callback(new Error("Not allowed by CORS"));
     }
   },
@@ -96,6 +115,8 @@ const corsOptions: CorsOptions = {
     "Accept",
     "Origin",
     "Cache-Control",
+    "Pragma",
+    "Expires",
     "X-File-Name",
   ],
   exposedHeaders: ["set-cookie"], // Expose cookies to frontend
@@ -118,32 +139,32 @@ app.use(cookieParser());
 app.set("trust proxy", 1);
 
 // Enhanced rate limiting with different limits for different routes
-const createRateLimiter = (
-  windowMs: number,
-  max: number,
-  message: string
-): RateLimitRequestHandler => {
-  return rateLimit({
-    windowMs,
-    max,
-    message: { error: message },
-    standardHeaders: true,
-    legacyHeaders: false,
-    // Remove keyGenerator to use default behavior
-    skip: (req: Request): boolean => {
-      return req.path === "/health" || req.path === "/status";
-    },
-  });
-};
+// const createRateLimiter = (
+//   windowMs: number,
+//   max: number,
+//   message: string
+// ): RateLimitRequestHandler => {
+//   return rateLimit({
+//     windowMs,
+//     max,
+//     message: { error: message },
+//     standardHeaders: true,
+//     legacyHeaders: false,
+//     // Remove keyGenerator to use default behavior
+//     skip: (req: Request): boolean => {
+//       return req.path === "/health" || req.path === "/status";
+//     },
+//   });
+// };
 
-// Apply different rate limits
-const generalLimiter: RateLimitRequestHandler = createRateLimiter(
-  15 * 60 * 1000,
-  100,
-  "Too many requests, please try again later."
-);
+// // Apply different rate limits
+// const generalLimiter: RateLimitRequestHandler = createRateLimiter(
+//   15 * 60 * 1000,
+//   100,
+//   "Too many requests, please try again later."
+// );
 
-app.use(generalLimiter);
+// app.use(generalLimiter);
 
 // Health check endpoint (before proxies)
 app.get("/health", (req: Request, res: Response): void => {
@@ -176,6 +197,27 @@ const createProxyMiddleware = (
       });
       return newPath;
     },
+    userResDecorator: (_proxyRes: any, proxyResData: any, userReq: Request, userRes: Response) => {
+      // Ensure CORS headers are present in the response
+      const origin = userReq.headers.origin;
+      const allowedOrigins = getAllowedOrigins();
+
+      if (origin) {
+        const isAllowed =
+          allowedOrigins.includes(origin) ||
+          (isDevelopment && (origin.includes("localhost") || origin.includes("127.0.0.1")));
+
+        if (isAllowed) {
+          console.log(`✅ [Proxy] CORS allowed for origin: ${origin}`);
+          userRes.setHeader('Access-Control-Allow-Origin', origin);
+          userRes.setHeader('Access-Control-Allow-Credentials', 'true');
+        } else {
+          console.warn(`❌ [Proxy] CORS blocked for origin: ${origin}`);
+          console.warn(`   Allowed origins:`, allowedOrigins);
+        }
+      }
+      return proxyResData;
+    },
     proxyErrorHandler: (
       err: Error,
       res: Response,
@@ -201,11 +243,23 @@ app.use(
   "/reviews",
   createProxyMiddleware("http://localhost:6007", { "^/reviews": "" })
 );
+
+// Debug middleware for /users route
+app.use("/users", (req, _res, next) => {
+  console.log("🔍 [API Gateway /users] Proxying request:", req.method, req.originalUrl);
+  console.log("🔍 [API Gateway /users] Target: http://localhost:6006");
+  next();
+});
+
 app.use(
   "/users",
   createProxyMiddleware("http://localhost:6006", { "^/users": "" })
 );
 app.use("/order", createProxyMiddleware("http://localhost:6005"));
+app.use(
+  "/payment",
+  createProxyMiddleware("http://localhost:6008", { "^/payment": "" })
+);
 app.use("/cart", createProxyMiddleware("http://localhost:6004"));
 app.use("/chat", createProxyMiddleware("http://localhost:6003"));
 app.use(
@@ -283,7 +337,12 @@ server.listen(port, async (): Promise<void> => {
 
   try {
     // Setup WebSocket + Redis
-    await setupSocketIO(server);
+    initializeWebSocket(server, {
+      cors: {
+        origin: getAllowedOrigins(),
+        credentials: true,
+      },
+    });
     console.log("✅ WebSocket server initialized");
   } catch (err) {
     console.error("❌ Startup error:", err);

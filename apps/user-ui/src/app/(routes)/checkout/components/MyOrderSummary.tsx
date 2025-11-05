@@ -146,10 +146,7 @@ const MyOrderSummary: React.FC<MyOrderSummaryProps> = ({
         <div className="p-4">
           <button
             className="w-full bg-red-800 hover:bg-red-900 text-white font-medium py-3 px-4 rounded transition-colors duration-200"
-            onClick={() => {
-              handleNext();
-              processedToPay();
-            }}
+            onClick={processedToPay}
           >
             PROCEED TO PAYMENT
           </button>

@@ -2,10 +2,11 @@ import express from "express";
 import cors from "cors";
 import dotenv from "dotenv";
 import cookieParser from "cookie-parser";
+import path from "path";
 import router from "./routes/user.route";
 import { errorHandler } from "../../../packages/error-handler/error-middleware";
 
-dotenv.config();
+dotenv.config({ path: path.resolve(__dirname, "../../../.env") });
 
 const app = express();
 
@@ -23,6 +24,13 @@ app.use(express.json({ limit: "100mb" }));
 app.use(express.urlencoded({ extended: true, limit: "100mb" }));
 app.use(cookieParser());
 
+// Debug middleware to log ALL incoming requests
+app.use((req, _res, next) => {
+  console.log("🔍 [Users Service] Incoming request:", req.method, req.originalUrl);
+  console.log("🔍 [Users Service] Headers:", JSON.stringify(req.headers, null, 2));
+  next();
+});
+
 app.use("/api", router);
 app.use(errorHandler);
 
@@ -32,3 +40,4 @@ const server = app.listen(port, () => {
 });
 
 server.on("error", console.error);
+

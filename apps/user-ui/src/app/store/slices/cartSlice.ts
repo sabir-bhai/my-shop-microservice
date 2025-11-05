@@ -79,8 +79,33 @@ const cartSlice = createSlice({
     },
 
     // Set cart items from backend
-    setCartItems(state, action: PayloadAction<CartItem[]>) {
-      state.items = action.payload;
+    setCartItems(state, action: PayloadAction<any[]>) {
+      // Transform backend cart items to frontend format
+      state.items = action.payload
+        .filter((item) => item.product !== null) // Filter out items with null products
+        .map((item) => ({
+          id: item.productId || item.id,
+          quantity: item.quantity,
+          product: {
+            id: item.product.id,
+            title: item.product.title,
+            slug: item.product.slug || "",
+            description: item.product.description || "",
+            regularPrice: item.product.regularPrice,
+            salePrice: item.product.salePrice || item.product.regularPrice,
+            warranty: "",
+            category: item.product.category || "",
+            sku: "",
+            stockQuantity: item.product.stockQuantity || 0,
+            discountCode: "",
+            tags: [],
+            publicationStatus: "",
+            featuredProduct: false,
+            createdAt: item.createdAt || "",
+            updatedAt: item.updatedAt || "",
+            images: item.product.images || [],
+          },
+        }));
       // Optionally sync with localStorage
       if (typeof window !== "undefined") {
         localStorage.setItem("cartItems", JSON.stringify(state.items));

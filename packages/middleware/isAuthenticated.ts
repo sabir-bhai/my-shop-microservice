@@ -1,6 +1,8 @@
 import { Request, Response, NextFunction } from "express";
 import jwt from "jsonwebtoken";
-import { prisma } from "../libs/prisma";
+import { PrismaClient as UsersPrismaClient } from ".prisma/users-client";
+
+const usersPrisma = new UsersPrismaClient();
 
 interface AuthRequest extends Request {
   user?: any;
@@ -22,7 +24,7 @@ const isAuthenticated = async (
     // Try to read token from cookies or Authorization header
     const token =
       req.cookies?.["access_token"] || req.headers.authorization?.split(" ")[1];
-    console.log("Token is ", token);
+   
     if (!token) {
       res.status(401).json({ message: "Unauthorized! Token missing." });
       return;
@@ -45,7 +47,7 @@ const isAuthenticated = async (
 
     // Check role and fetch account
     if (decoded.role === "user") {
-      account = await prisma.user.findUnique({ where: { id: accountId } });
+      account = await usersPrisma.user.findUnique({ where: { id: accountId } });
     }
 
     if (!account) {

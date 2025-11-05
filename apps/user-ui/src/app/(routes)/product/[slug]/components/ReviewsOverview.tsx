@@ -9,16 +9,25 @@ interface ReviewsOverviewProps {
 }
 
 const ReviewsOverview: React.FC<ReviewsOverviewProps> = ({ stats }) => {
+  // Provide default values if stats is undefined
+  const safeStats = stats || {
+    averageRating: 0,
+    totalReviews: 0,
+    ratingDistribution: { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0 },
+    recommendationPercentage: 0,
+    totalRecommendations: 0,
+  };
+
   return (
     <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-8">
       {/* Overall Rating */}
       <div>
         <div className="text-6xl font-bold text-gray-900 mb-2">
-          {stats.averageRating}
+          {safeStats.averageRating}
         </div>
-        <StarRating rating={stats.averageRating} size="lg" />
+        <StarRating rating={safeStats.averageRating} size="lg" />
         <p className="text-gray-600 text-sm mt-2">
-          based on {stats.totalReviews} reviews
+          based on {safeStats.totalReviews} reviews
         </p>
       </div>
 
@@ -28,8 +37,8 @@ const ReviewsOverview: React.FC<ReviewsOverviewProps> = ({ stats }) => {
           <RatingBar
             key={rating}
             rating={rating}
-            count={stats.ratingDistribution[rating] || 0}
-            totalReviews={stats.totalReviews}
+            count={safeStats.ratingDistribution[rating] || 0}
+            totalReviews={safeStats.totalReviews}
           />
         ))}
       </div>
@@ -37,8 +46,8 @@ const ReviewsOverview: React.FC<ReviewsOverviewProps> = ({ stats }) => {
       {/* Recommendation Percentage */}
       <div className="flex justify-center">
         <RecommendationCircle
-          percentage={stats.recommendationPercentage}
-          totalRecommendations={stats.totalRecommendations}
+          percentage={safeStats.recommendationPercentage}
+          totalRecommendations={safeStats.totalRecommendations}
         />
       </div>
     </div>

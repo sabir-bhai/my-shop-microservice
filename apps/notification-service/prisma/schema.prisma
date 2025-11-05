@@ -10,27 +10,101 @@ datasource db {
 
 enum NotificationType {
   ORDER_CREATED
+  ORDER_CONFIRMED
   PAYMENT_SUCCESS
-  ORDER_STATUS_CHANGED
+  PAYMENT_FAILED
+  ORDER_SHIPPED
+  ORDER_DELIVERED
+  ORDER_CANCELLED
+  REFUND_INITIATED
+  REFUND_COMPLETED
   SALES_OFFER
   GENERAL
 }
 
-model Notification {
-  id      String           @id @default(auto()) @map("_id") @db.ObjectId
-  userId  String           @db.ObjectId
-  type    NotificationType
-  title   String
-  message String
-  data    Json?
-  isRead  Boolean          @default(false)
-  sentAt  DateTime         @default(now())
+enum NotificationChannel {
+  EMAIL
+  SMS
+  PUSH
+  IN_APP
 }
 
+enum NotificationStatus {
+  PENDING
+  SENT
+  FAILED
+  DELIVERED
+}
+
+// In-app notifications for users
+model Notification {
+  id        String           @id @default(auto()) @map("_id") @db.ObjectId
+  userId    String           @db.ObjectId
+  type      NotificationType
+  channel   NotificationChannel @default(IN_APP)
+  title     String
+  message   String
+  data      Json?
+  isRead    Boolean          @default(false)
+  sentAt    DateTime         @default(now())
+  createdAt DateTime         @default(now())
+}
+
+// Email notification logs
+model EmailLog {
+  id        String             @id @default(auto()) @map("_id") @db.ObjectId
+  userId    String?            @db.ObjectId
+  to        String
+  from      String?
+  subject   String
+  body      String
+  type      NotificationType?
+  status    NotificationStatus @default(PENDING)
+  error     String?
+  sentAt    DateTime?
+  createdAt DateTime           @default(now())
+  updatedAt DateTime           @updatedAt
+}
+
+// SMS notification logs
+model SMSLog {
+  id          String             @id @default(auto()) @map("_id") @db.ObjectId
+  userId      String?            @db.ObjectId
+  phoneNumber String
+  message     String
+  type        NotificationType?
+  status      NotificationStatus @default(PENDING)
+  provider    String?            // Twilio, AWS SNS, etc.
+  messageId   String?            // Provider message ID
+  error       String?
+  sentAt      DateTime?
+  createdAt   DateTime           @default(now())
+  updatedAt   DateTime           @updatedAt
+}
+
+// Push notification logs
+model PushLog {
+  id        String             @id @default(auto()) @map("_id") @db.ObjectId
+  userId    String             @db.ObjectId
+  token     String
+  title     String
+  body      String
+  data      Json?
+  type      NotificationType?
+  status    NotificationStatus @default(PENDING)
+  error     String?
+  sentAt    DateTime?
+  createdAt DateTime           @default(now())
+  updatedAt DateTime           @updatedAt
+}
+
+// Device tokens for push notifications
 model DeviceToken {
   id        String   @id @default(auto()) @map("_id") @db.ObjectId
   userId    String   @db.ObjectId
   token     String   @unique
-  platform  String?
+  platform  String?  // ios, android, web
+  isActive  Boolean  @default(true)
   createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }
