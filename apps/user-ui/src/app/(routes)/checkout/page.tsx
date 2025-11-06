@@ -11,6 +11,7 @@ import MyOrderSummary from "./components/MyOrderSummary";
 import MainPaymentComponent from "./components/MainPaymentComponent";
 import axiosInstance from "../../utils/axiosinstance";
 import loadRazorpayScript from "../../utils/razorpay";
+import useUser from "../../hooks/useUser";
 
 import { toast } from "sonner";
 
@@ -47,6 +48,7 @@ const Page: React.FC = () => {
   const router = useRouter();
   const searchParams = useSearchParams();
   const queryClient = useQueryClient();
+  const { user } = useUser();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const stepParam = parseInt(searchParams.get("step") || "0", 10);
   const [step, setStep] = useState(stepParam);
@@ -246,9 +248,9 @@ const Page: React.FC = () => {
           ondismiss: () => console.log("Payment modal closed by user"),
         },
         prefill: {
-          name: "Customer Name",
-          email: "customer@example.com",
-          contact: "9999999999",
+          name: user?.name || "Customer",
+          email: user?.email || "",
+          contact: user?.phone || "",
         },
         theme: { color: "#F37254" },
         timeout: 300, // seconds

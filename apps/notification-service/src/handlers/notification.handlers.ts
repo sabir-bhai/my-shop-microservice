@@ -1,285 +1,104 @@
 /**
  * Notification Handlers
+ *
  * Handles different types of notification events from RabbitMQ
  */
 
-import { PrismaClient } from '.prisma/notification-client';
-import { sendEmail } from '../services/email.service';
-import * as emailTemplates from '../templates/email.templates';
-
-const prisma = new PrismaClient();
+import {
+  sendPaymentSuccessEmail,
+  sendOrderConfirmationEmail,
+} from "../services/email.service";
 
 /**
- * Handle ORDER_CREATED event
- * Sends confirmation email and creates in-app notification
+ * Handle payment success notification
  */
-export const handleOrderCreated = async (data: any) => {
+export const handlePaymentSuccess = async (message: any): Promise<void> => {
   try {
-    console.log('📧 Handling ORDER_CREATED event:', data);
+    console.log(`-------------==========================
+      --------------------------------------------------------------------------------------------------------------------
+  🔔 Processing payment success notification...=============================`);
 
-    const { orderId, userId, total, itemsCount } = data;
+    const { data } = message;
 
-    // Get user email (you'll need to fetch from user service or pass in event)
-    const userEmail = data.userEmail || process.env.TEST_EMAIL;
-    const customerName = data.customerName || 'Customer';
-
-    if (!userEmail) {
-      console.warn('⚠️ No user email provided for order created notification');
-      return;
+    // Validate required fields
+    if (!data.email || !data.customerName || !data.orderId) {
+      throw new Error("Missing required fields in payment success message");
     }
 
-    // Send email
-    await sendEmail({
-      to: userEmail,
-      subject: `Order Confirmed - ${orderId}`,
-      html: emailTemplates.orderCreatedTemplate({
-        orderId,
-        customerName,
-        total,
-        itemsCount,
-      }),
-      userId,
-      type: 'ORDER_CREATED',
+    // Send payment success email
+    await sendPaymentSuccessEmail({
+      to: data.email,
+      customerName: data.customerName,
+      orderId: data.orderId,
+      orderNumber:
+        data.orderNumber || `ORD-${data.orderId.slice(-8).toUpperCase()}`,
+      amount: data.amount || 0,
+      paymentId: data.paymentId || "N/A",
+      items: data.items || [],
     });
 
-    // Create in-app notification
-    await prisma.notification.create({
-      data: {
-        userId,
-        type: 'ORDER_CREATED',
-        channel: 'IN_APP',
-        title: 'Order Confirmed',
-        message: `Your order #${orderId} has been confirmed. Total: ₹${total}`,
-        data: { orderId, total, itemsCount },
-      },
-    });
-
-    console.log('✅ Order created notification sent successfully');
+    console.log("✅ Payment success email sent successfully");
   } catch (error: any) {
-    console.error('❌ Error handling ORDER_CREATED:', error.message);
+    console.error(
+      "❌ Error handling payment success notification:",
+      error.message
+    );
+    throw error;
   }
 };
 
 /**
- * Handle PAYMENT_SUCCESS event
+ * Handle order created notification
  */
-export const handlePaymentSuccess = async (data: any) => {
+export const handleOrderCreated = async (message: any): Promise<void> => {
   try {
-    console.log('📧 Handling PAYMENT_SUCCESS event:', data);
+    console.log("🔔 Processing order created notification...");
 
-    const { orderId, userId, total, paymentId } = data;
-
-    const userEmail = data.userEmail || process.env.TEST_EMAIL;
-    const customerName = data.customerName || 'Customer';
-
-    if (!userEmail) {
-      console.warn('⚠️ No user email provided for payment success notification');
-      return;
+    const { data } = message;
+    console.log("...................Notification msg.................", data);
+    // Validate required fields
+    if (!data.email || !data.customerName || !data.orderId) {
+      throw new Error("Missing required fields in order created message");
     }
 
-    // Send email
-    await sendEmail({
-      to: userEmail,
-      subject: `Payment Successful - ${orderId}`,
-      html: emailTemplates.paymentSuccessTemplate({
-        orderId,
-        customerName,
-        total,
-        paymentId,
-      }),
-      userId,
-      type: 'PAYMENT_SUCCESS',
+    // Send order confirmation email
+    await sendOrderConfirmationEmail({
+      to: data.email,
+      customerName: data.customerName,
+      orderId: data.orderId,
+      orderNumber:
+        data.orderNumber || `ORD-${data.orderId.slice(-8).toUpperCase()}`,
     });
 
-    // Create in-app notification
-    await prisma.notification.create({
-      data: {
-        userId,
-        type: 'PAYMENT_SUCCESS',
-        channel: 'IN_APP',
-        title: 'Payment Successful',
-        message: `Your payment of ₹${total} has been received. Order #${orderId}`,
-        data: { orderId, total, paymentId },
-      },
-    });
-
-    console.log('✅ Payment success notification sent successfully');
+    console.log("✅ Order confirmation email sent successfully");
   } catch (error: any) {
-    console.error('❌ Error handling PAYMENT_SUCCESS:', error.message);
+    console.error(
+      "❌ Error handling order created notification:",
+      error.message
+    );
+    throw error;
   }
 };
 
 /**
- * Handle PAYMENT_FAILED event
+ * Handle generic email notification
  */
-export const handlePaymentFailed = async (data: any) => {
+export const handleEmailNotification = async (message: any): Promise<void> => {
   try {
-    console.log('📧 Handling PAYMENT_FAILED event:', data);
+    console.log("🔔 Processing email notification...");
 
-    const { orderId, userId } = data;
+    const { data } = message;
 
-    const userEmail = data.userEmail || process.env.TEST_EMAIL;
-    const customerName = data.customerName || 'Customer';
-
-    if (!userEmail) {
-      console.warn('⚠️ No user email provided for payment failed notification');
-      return;
+    // Check the notification type
+    if (data.type === "payment_success") {
+      await handlePaymentSuccess(message);
+    } else if (data.type === "order_created") {
+      await handleOrderCreated(message);
+    } else {
+      console.warn("⚠️ Unknown email notification type:", data.type);
     }
-
-    // Send email
-    await sendEmail({
-      to: userEmail,
-      subject: `Payment Failed - ${orderId}`,
-      html: emailTemplates.paymentFailedTemplate(orderId, customerName),
-      userId,
-      type: 'PAYMENT_FAILED',
-    });
-
-    // Create in-app notification
-    await prisma.notification.create({
-      data: {
-        userId,
-        type: 'PAYMENT_FAILED',
-        channel: 'IN_APP',
-        title: 'Payment Failed',
-        message: `Payment for order #${orderId} failed. Please try again.`,
-        data: { orderId },
-      },
-    });
-
-    console.log('✅ Payment failed notification sent successfully');
   } catch (error: any) {
-    console.error('❌ Error handling PAYMENT_FAILED:', error.message);
-  }
-};
-
-/**
- * Handle ORDER_SHIPPED event
- */
-export const handleOrderShipped = async (data: any) => {
-  try {
-    console.log('📧 Handling ORDER_SHIPPED event:', data);
-
-    const { orderId, userId, trackingNumber } = data;
-
-    const userEmail = data.userEmail || process.env.TEST_EMAIL;
-    const customerName = data.customerName || 'Customer';
-
-    if (!userEmail) {
-      console.warn('⚠️ No user email provided for order shipped notification');
-      return;
-    }
-
-    // Send email
-    await sendEmail({
-      to: userEmail,
-      subject: `Order Shipped - ${orderId}`,
-      html: emailTemplates.orderShippedTemplate({
-        orderId,
-        customerName,
-        trackingNumber,
-      }),
-      userId,
-      type: 'ORDER_SHIPPED',
-    });
-
-    // Create in-app notification
-    await prisma.notification.create({
-      data: {
-        userId,
-        type: 'ORDER_SHIPPED',
-        channel: 'IN_APP',
-        title: 'Order Shipped',
-        message: `Your order #${orderId} has been shipped and is on its way!`,
-        data: { orderId, trackingNumber },
-      },
-    });
-
-    console.log('✅ Order shipped notification sent successfully');
-  } catch (error: any) {
-    console.error('❌ Error handling ORDER_SHIPPED:', error.message);
-  }
-};
-
-/**
- * Handle ORDER_DELIVERED event
- */
-export const handleOrderDelivered = async (data: any) => {
-  try {
-    console.log('📧 Handling ORDER_DELIVERED event:', data);
-
-    const { orderId, userId } = data;
-
-    const userEmail = data.userEmail || process.env.TEST_EMAIL;
-    const customerName = data.customerName || 'Customer';
-
-    if (!userEmail) {
-      console.warn('⚠️ No user email provided for order delivered notification');
-      return;
-    }
-
-    // Send email
-    await sendEmail({
-      to: userEmail,
-      subject: `Order Delivered - ${orderId}`,
-      html: emailTemplates.orderDeliveredTemplate({
-        orderId,
-        customerName,
-      }),
-      userId,
-      type: 'ORDER_DELIVERED',
-    });
-
-    // Create in-app notification
-    await prisma.notification.create({
-      data: {
-        userId,
-        type: 'ORDER_DELIVERED',
-        channel: 'IN_APP',
-        title: 'Order Delivered',
-        message: `Your order #${orderId} has been delivered. Enjoy your purchase!`,
-        data: { orderId },
-      },
-    });
-
-    console.log('✅ Order delivered notification sent successfully');
-  } catch (error: any) {
-    console.error('❌ Error handling ORDER_DELIVERED:', error.message);
-  }
-};
-
-/**
- * Handle USER_REGISTERED event (Welcome email)
- */
-export const handleUserRegistered = async (data: any) => {
-  try {
-    console.log('📧 Handling USER_REGISTERED event:', data);
-
-    const { userId, email, name } = data;
-
-    // Send welcome email
-    await sendEmail({
-      to: email,
-      subject: 'Welcome to My Shop!',
-      html: emailTemplates.welcomeEmailTemplate(name || 'there'),
-      userId,
-      type: 'GENERAL',
-    });
-
-    // Create in-app notification
-    await prisma.notification.create({
-      data: {
-        userId,
-        type: 'GENERAL',
-        channel: 'IN_APP',
-        title: 'Welcome!',
-        message: 'Welcome to My Shop! Start exploring our amazing products.',
-        data: {},
-      },
-    });
-
-    console.log('✅ Welcome notification sent successfully');
-  } catch (error: any) {
-    console.error('❌ Error handling USER_REGISTERED:', error.message);
+    console.error("❌ Error handling email notification:", error.message);
+    throw error;
   }
 };

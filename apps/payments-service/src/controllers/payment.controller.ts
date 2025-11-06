@@ -11,6 +11,7 @@ import { PrismaClient } from ".prisma/payment-client";
 import { AuthError, ValidationError } from "../../../../packages/error-handler";
 import razorpay from "../../../../packages/libs/razorpay";
 import * as rabbitmq from "../../../../packages/libs/rabbitmq";
+import { fetchUserById } from "../utils/fetchUser";
 
 const prisma = new PrismaClient();
 
@@ -98,7 +99,7 @@ export const createPaymentOrder = async (
  * Called after user completes payment on frontend
  */
 export const verifyPayment = async (
-  req: Request,
+  req: any,
   res: Response,
   next: NextFunction
 ) => {
@@ -108,6 +109,8 @@ export const verifyPayment = async (
       razorpay_payment_id,
       razorpay_signature,
       paymentId, // Our internal payment ID
+      orderNumber, // Order number (optional)
+      items, // Order items (optional)
     } = req.body;
 
     if (
@@ -140,23 +143,61 @@ export const verifyPayment = async (
     if (isValid) {
       console.log(`✅ Payment verified successfully: ${paymentId}`);
 
-      // 🚀 Publish payment success event to RabbitMQ
-      await rabbitmq.publisher.publishToQueue(
-        rabbitmq.QueueNames.PAYMENT_VERIFIED,
-        {
-          eventId: `payment-verified-${Date.now()}`,
-          timestamp: new Date().toISOString(),
-          data: {
-            paymentId: payment.id,
-            orderId: payment.orderId,
-            userId: payment.userId,
-            amount: payment.amount,
-            razorpay_order_id,
-            razorpayPaymentId: razorpay_payment_id,
-            status: "SUCCESS",
-          },
-        }
-      );
+      // Fetch user data from database
+      const user = await fetchUserById(payment.userId);
+      const userEmail = user?.email || "customer@example.com";
+      const userName = user?.name || "Customer";
+
+      console.log(`📧 Sending payment notification to: ${userEmail}`);
+
+      // 🚀 Publish payment success event to RabbitMQ for notification service
+      // Using ORDER_PAID queue to trigger email notification
+      try {
+        await rabbitmq.publisher.publishToQueue(
+          rabbitmq.QueueNames.ORDER_PAID,
+          {
+            eventId: `order-paid-${Date.now()}`,
+            timestamp: new Date().toISOString(),
+            data: {
+              // Required fields for email notification
+              email: userEmail,
+              customerName: userName,
+              orderId: payment.orderId,
+              orderNumber: orderNumber || `ORD-${payment.orderId.slice(-8).toUpperCase()}`,
+              amount: payment.amount,
+              paymentId: razorpay_payment_id,
+              // Optional: Pass items if available
+              items: items || [],
+            },
+          }
+        );
+        console.log(`✅ Payment notification sent to queue: ORDER_PAID for ${userEmail}`);
+      } catch (error: any) {
+        console.error(`❌ Failed to publish payment notification:`, error.message);
+        // Don't fail the payment verification if notification fails
+      }
+
+      // Also publish to PAYMENT_VERIFIED queue for other services
+      try {
+        await rabbitmq.publisher.publishToQueue(
+          rabbitmq.QueueNames.PAYMENT_VERIFIED,
+          {
+            eventId: `payment-verified-${Date.now()}`,
+            timestamp: new Date().toISOString(),
+            data: {
+              paymentId: payment.id,
+              orderId: payment.orderId,
+              userId: payment.userId,
+              amount: payment.amount,
+              razorpay_order_id,
+              razorpayPaymentId: razorpay_payment_id,
+              status: "SUCCESS",
+            },
+          }
+        );
+      } catch (error: any) {
+        console.error(`❌ Failed to publish payment verified event:`, error.message);
+      }
 
       res.status(200).json({
         success: true,

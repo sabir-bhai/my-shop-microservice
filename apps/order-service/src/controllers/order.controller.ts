@@ -34,7 +34,16 @@ export const createOrder = async (
     } = req.body;
 
     const userId = req.user?.id;
-
+    const userEmail = req.user?.email;
+    const userName = req.user?.name;
+    console.log(
+      "Create order userId",
+      userId,
+      "userEmail",
+      userEmail,
+      "usename",
+      userName
+    );
     if (!userId) {
       throw new AuthError("User not authenticated");
     }
@@ -85,6 +94,8 @@ export const createOrder = async (
       itemsCount,
       status: "CREATED",
       cartItems,
+      email: userEmail,
+      customerName: userName,
     });
 
     res.status(201).json({

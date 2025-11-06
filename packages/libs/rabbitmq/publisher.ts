@@ -50,11 +50,10 @@ const assertQueue = async (queueName: string): Promise<boolean> => {
     }
 
     // Assert queue with durable option (survives broker restart)
+    // Don't specify arguments to avoid PRECONDITION_FAILED errors
+    // if queue already exists with different configuration
     await channel.assertQueue(queueName, {
       durable: true, // Queue survives broker restart
-      arguments: {
-        "x-message-ttl": 86400000, // 24 hours message TTL
-      },
     });
 
     return true;

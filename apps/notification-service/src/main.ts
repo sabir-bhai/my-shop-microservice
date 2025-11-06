@@ -1,20 +1,11 @@
-/**
- * Notification Service
- *
- * This service handles all notifications:
- * - Email notifications (Nodemailer)
- * - In-app notifications
- * - SMS notifications (future)
- * - Push notifications (future)
- *
- * It listens to RabbitMQ events from other services and sends appropriate notifications.
- */
+
 
 import express from 'express';
 import * as path from 'path';
 import dotenv from 'dotenv';
-import { startConsumer, stopConsumer } from './consumers/notification.consumer';
-import { verifyEmailConnection } from './services/email.service';
+import * as rabbitmq from '../../../packages/libs/rabbitmq';
+import { startNotificationConsumers } from './consumers/notification.consumer';
+import { testEmailConfig } from './services/email.service';
 
 dotenv.config({ path: path.resolve(__dirname, "../../../.env") });
 
@@ -26,19 +17,17 @@ app.get('/health', (_req, res) => {
   res.json({
     status: 'ok',
     service: 'notification-service',
-    timestamp: new Date().toISOString()
+    timestamp: new Date().toISOString(),
+    rabbitmq: rabbitmq.connection.isConnected() ? 'connected' : 'disconnected',
   });
 });
 
 // API info endpoint
-app.get('/api', (_req, res) => {
+app.get('/', (_req, res) => {
   res.json({
-    message: 'Notification Service is running',
-    features: [
-      'Email notifications',
-      'In-app notifications',
-      'Event-driven architecture via RabbitMQ'
-    ]
+    service: 'Notification Service',
+    version: '1.0.0',
+    description: 'Handles email notifications via RabbitMQ',
   });
 });
 
@@ -49,49 +38,47 @@ const startService = async () => {
   try {
     console.log('🚀 Starting Notification Service...');
 
-    // Verify email configuration
-    const emailReady = await verifyEmailConnection();
-    if (!emailReady) {
-      console.warn('⚠️ Email service not configured properly. Check your SMTP settings.');
-      console.warn('   Set SMTP_HOST, SMTP_USER, SMTP_PASSWORD in your .env file');
+    // Test email configuration
+    console.log('📧 Testing email configuration...');
+    const emailConfigOk = await testEmailConfig();
+    if (!emailConfigOk) {
+      console.error('❌ Email configuration test failed');
+      console.warn('⚠️ Service will continue, but emails may not be sent');
     }
 
-    // Start RabbitMQ consumer
-    await startConsumer();
+    // Connect to RabbitMQ
+    console.log('🔌 Connecting to RabbitMQ...');
+    await rabbitmq.connection.connect();
+
+    // Start notification consumers
+    await startNotificationConsumers();
 
     // Start Express server
-    const server = app.listen(port, () => {
-      console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
-      console.log(`📧 Notification Service`);
-      console.log(`🌐 Port: ${port}`);
-      console.log(`🏥 Health: http://localhost:${port}/health`);
-      console.log(`📬 Status: Listening for events from RabbitMQ`);
-      console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+    app.listen(port, () => {
+      console.log(`✅ Notification Service is running on port ${port}`);
+      console.log(`📍 Health check: http://localhost:${port}/health`);
+      console.log(`📍 Info: http://localhost:${port}/`);
     });
 
-    // Graceful shutdown
-    const shutdown = async () => {
-      console.log('\n🛑 Shutting down Notification Service...');
-      await stopConsumer();
-      server.close(() => {
-        console.log('✅ Notification Service stopped');
-        process.exit(0);
-      });
-    };
-
-    process.on('SIGTERM', shutdown);
-    process.on('SIGINT', shutdown);
-
-    server.on('error', (error) => {
-      console.error('❌ Server error:', error);
-      process.exit(1);
-    });
-
+    console.log('✅ Notification Service started successfully');
   } catch (error: any) {
     console.error('❌ Failed to start Notification Service:', error.message);
     process.exit(1);
   }
 };
+
+// Graceful shutdown
+process.on('SIGINT', async () => {
+  console.log('\n⚠️ Shutting down Notification Service...');
+  await rabbitmq.connection.close();
+  process.exit(0);
+});
+
+process.on('SIGTERM', async () => {
+  console.log('\n⚠️ Shutting down Notification Service...');
+  await rabbitmq.connection.close();
+  process.exit(0);
+});
 
 // Start the service
 startService();

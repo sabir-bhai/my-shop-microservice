@@ -52,12 +52,12 @@ export const consume = async (options: ConsumerOptions): Promise<void> => {
       return;
     }
 
-    // Assert queue exists (must match publisher configuration)
+    // Assert queue exists without specifying arguments
+    // This allows consuming from queues with any configuration
+    // The queue should be created by the publisher with the correct arguments
     await channel.assertQueue(queueName, {
       durable: true,
-      arguments: {
-        "x-message-ttl": 86400000, // 24 hours message TTL (matches publisher)
-      },
+      // Don't specify arguments here - accept whatever the publisher created
     });
 
     // Set prefetch count (how many messages to process at once)

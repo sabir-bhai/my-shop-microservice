@@ -222,13 +222,13 @@ export const verifyOtp = async (
 
     // Generate tokens
     const accessToken = jwt.sign(
-      { id: user.id, role: "user" },
+      { id: user.id, role: "user", email: user.email, name: user.name },
       process.env.ACCESS_TOKEN_SECRET as string,
       { expiresIn: "15m" }
     );
 
     const refreshToken = jwt.sign(
-      { id: user.id, role: "user" },
+      { id: user.id, role: "user", email: user.email, name: user.name },
       process.env.REFRESH_TOKEN_SECRET as string,
       { expiresIn: "7d" }
     );
@@ -291,13 +291,13 @@ export const loginUser = async (
 
     // Generate tokens
     const accessToken = jwt.sign(
-      { id: user.id, role: "user" },
+      { id: user.id, role: "user", email: user.email, name: user.name },
       process.env.ACCESS_TOKEN_SECRET as string,
       { expiresIn: "15m" }
     );
 
     const refreshToken = jwt.sign(
-      { id: user.id, role: "user" },
+      { id: user.id, role: "user", email: user.email, name: user.name },
       process.env.REFRESH_TOKEN_SECRET as string,
       { expiresIn: "7d" }
     );
@@ -366,7 +366,7 @@ export const refreshToken = async (
     }
 
     const newAccessToken = jwt.sign(
-      { id: decoded.id, role: "user" },
+      { id: decoded.id, role: "user", email: user.email, name: user.name },
       process.env.ACCESS_TOKEN_SECRET as string,
       { expiresIn: "15m" }
     );
@@ -572,13 +572,13 @@ export const loginAdmin = async (
     if (!isMatch) throw new AuthError("Invalid email or password.");
 
     const accessToken = jwt.sign(
-      { id: admin.id, role: "admin" },
+      { id: admin.id, role: "admin", email: admin.email, name: admin.name },
       process.env.ACCESS_TOKEN_SECRET as string,
       { expiresIn: "15m" }
     );
 
     const refreshToken = jwt.sign(
-      { id: admin.id, role: "admin" },
+      { id: admin.id, role: "admin", email: admin.email, name: admin.name },
       process.env.REFRESH_TOKEN_SECRET as string,
       { expiresIn: "7d" }
     );
@@ -625,7 +625,7 @@ export const refreshAdminToken = async (
     if (!admin) throw new AuthError("Forbidden! Admin not found.");
 
     const newAccessToken = jwt.sign(
-      { id: decoded.id, role: "admin" },
+      { id: decoded.id, role: "admin", email: admin.email, name: admin.name },
       process.env.ACCESS_TOKEN_SECRET as string,
       { expiresIn: "15m" }
     );
@@ -796,13 +796,13 @@ export const googleCallback = async (
     }
 
     const accessTokenJwt = jwt.sign(
-      { id: user.id, role: user.role },
+      { id: user.id, role: user.role, email: user.email, name: user.name },
       process.env.ACCESS_TOKEN_SECRET as string,
       { expiresIn: "15m" }
     );
 
     const refreshTokenJwt = jwt.sign(
-      { id: user.id, role: user.role },
+      { id: user.id, role: user.role, email: user.email, name: user.name },
       process.env.REFRESH_TOKEN_SECRET as string,
       { expiresIn: "7d" }
     );
